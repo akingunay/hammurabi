@@ -22,7 +22,7 @@ public class EventTrace implements EventSubject {
         this.lastMoment = lastMoment;
         eventObserversMap = new EventObserversMap();
     }
-    
+        
     public void execute() {
         long currentMoment = 0;
         int nextEventOccurrenceIndex = 0;

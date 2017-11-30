@@ -9,7 +9,7 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserver;
  *
  * @author Akin Gunay
  */
-public abstract class Property implements EventObserver, PropertySubject {
+public abstract class Property implements PropertyExpression, EventObserver, PropertySubject {
 
     private final Set<PropertyObserver> propertyObservers;
     private PropertyState propertyState;
@@ -19,7 +19,8 @@ public abstract class Property implements EventObserver, PropertySubject {
         this.propertyObservers = new HashSet<>();
     }
 
-    public PropertyState getState() {
+    @Override
+    public PropertyState evaluate() {
         return propertyState;
     }
 

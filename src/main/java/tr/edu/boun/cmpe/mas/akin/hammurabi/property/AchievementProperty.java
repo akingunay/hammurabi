@@ -29,7 +29,7 @@ public class AchievementProperty extends Property {
     @Override
     protected void evaluate(EventOccurrence eventOccurrence) {
         // validation
-        if (getState().equals(PropertyState.UNDETERMINED)) {
+        if (evaluate().equals(PropertyState.UNDETERMINED)) {
             if (eventOccurrence.getEvent().equals(Event.TICK)) {
                 if (intervalEnd == eventOccurrence.getMoment()) {
                     setTerminalState(PropertyState.FAILED);
