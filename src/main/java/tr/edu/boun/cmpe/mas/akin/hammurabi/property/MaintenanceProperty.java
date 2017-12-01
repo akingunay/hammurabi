@@ -1,7 +1,8 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.property;
 
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.Event;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventOccurrence;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
 
 /**
  *
@@ -13,28 +14,30 @@ public class MaintenanceProperty extends Property {
     private final Event failureEvent;
     private final long intervalStart;
     private final long intervalEnd;
+    private final EventTrace eventTrace;
     
     private boolean currenltyMaintaining;
     
-    public static MaintenanceProperty newMaintenanceProperty(Event requiredEvent, Event failureEvent, long intervalStart, long intervalEnd) {
+    public static MaintenanceProperty newMaintenanceProperty(String requiredEventLabel, String failureEventLabel, long intervalStart, long intervalEnd, EventTrace eventTrace) {
         // TODO validate
-        MaintenanceProperty maintenanceProperty = new MaintenanceProperty(requiredEvent, failureEvent, intervalStart, intervalEnd);
-        requiredEvent.registerEventObserver(maintenanceProperty);
-        failureEvent.registerEventObserver(maintenanceProperty);
+        MaintenanceProperty maintenanceProperty = new MaintenanceProperty(eventTrace.getEventInstance(requiredEventLabel), eventTrace.getEventInstance(failureEventLabel), intervalStart, intervalEnd, eventTrace);
+        eventTrace.registerEventObserver(maintenanceProperty, maintenanceProperty.requiredEvent);
+        eventTrace.registerEventObserver(maintenanceProperty, maintenanceProperty.failureEvent);
         return maintenanceProperty;
     }
     
-    private MaintenanceProperty(Event requiredEvent, Event failureEvent, long intervalStart, long intervalEnd) {
+    private MaintenanceProperty(Event requiredEvent, Event failureEvent, long intervalStart, long intervalEnd, EventTrace eventTrace) {
         this.requiredEvent = requiredEvent;
         this.failureEvent = failureEvent;
         this.intervalStart = intervalStart;
         this.intervalEnd = intervalEnd;
+        this.eventTrace = eventTrace;
         this.currenltyMaintaining = false;
     }
 
     // occurrence of both events at the same moment is undefined
     @Override
-    protected void evaluate(EventOccurrence eventOccurrence) {
+    protected void evaluate(EventLog eventOccurrence) {
         // validation
         if (eventOccurrence.getEvent().equals(Event.TICK)) {
             if (intervalStart + 1 == eventOccurrence.getMoment() && !currenltyMaintaining) {
@@ -57,8 +60,8 @@ public class MaintenanceProperty extends Property {
     protected void setTerminalState(PropertyState propertyState) {
         setState(propertyState);
         notifyPropertyObservers();
-        requiredEvent.removeEventObserver(this);
-        failureEvent.removeEventObserver(this);
+        eventTrace.removeEventObserver(this, requiredEvent);
+        eventTrace.removeEventObserver(this, failureEvent);
     }
 
 }

@@ -2,7 +2,7 @@ package tr.edu.boun.cmpe.mas.akin.hammurabi.property;
 
 import java.util.HashSet;
 import java.util.Set;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventOccurrence;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserver;
 
 /**
@@ -45,7 +45,7 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
     }
     
     @Override
-    public void update(EventOccurrence eventOccurrence) {
+    public void update(EventLog eventOccurrence) {
         evaluate(eventOccurrence);
     }
     
@@ -53,5 +53,5 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
         this.propertyState = propertyState;
     }
     
-    protected abstract void evaluate(EventOccurrence eventOccurrence);  
+    protected abstract void evaluate(EventLog eventOccurrence);  
 }

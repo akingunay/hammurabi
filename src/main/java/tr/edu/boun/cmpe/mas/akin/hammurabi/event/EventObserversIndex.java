@@ -9,11 +9,11 @@ import java.util.Set;
  *
  * @author Akin Gunay
  */
-public class EventObserversMap {
+public class EventObserversIndex {
 
     private final Map<Event, Set<EventObserver>> eventObserversMap;
     
-    public EventObserversMap() {
+    public EventObserversIndex() {
         eventObserversMap = new HashMap<>();
     }
     
@@ -39,10 +39,10 @@ public class EventObserversMap {
         }
     }
     
-    public void notifyObserversOfEventOccurrence(EventOccurrence eventOccurrence) {
-        Set<EventObserver> copyEventObservers = new HashSet<>(eventObserversMap.get(eventOccurrence.getEvent()));
+    public void notifyObserversOfEventLog(EventLog eventLog) {
+        Set<EventObserver> copyEventObservers = new HashSet<>(eventObserversMap.get(eventLog.getEvent()));
         for (EventObserver eventObserver : copyEventObservers) {
-            eventObserver.update(eventOccurrence);
+            eventObserver.update(eventLog);
         }
     }
 }

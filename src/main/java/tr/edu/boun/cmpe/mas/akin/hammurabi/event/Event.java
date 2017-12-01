@@ -11,30 +11,24 @@ public class Event {
     public static Event TICK;
     
     static {
-        TICK = new Event("TICK", null); // TODO we need a better way for this null in TICK
+        TICK = new Event("TICK");
     }
     
     private final String label;
-    private final EventTrace eventTrace;
     
-    static Event newEvent(String label, EventTrace eventTrace) {
+    static Event newEvent(String label) {
         // TODO validation
-        return new Event(label, eventTrace);
+        return new Event(label);
     }
     
-    private Event(String label, EventTrace eventTrace) {
+    private Event(String label) {
         this.label = label;
-        this.eventTrace = eventTrace;
     }
 
-    public void registerEventObserver(EventObserver eventObserver) {
-        eventTrace.registerEventObserver(eventObserver, this);
+    String getEventLabel() {
+        return label;
     }
-
-    public void removeEventObserver(EventObserver eventObserver) {
-        eventTrace.removeEventObserver(eventObserver, this);
-    }
-
+    
     @Override
     public int hashCode() {
         int hash = 7;

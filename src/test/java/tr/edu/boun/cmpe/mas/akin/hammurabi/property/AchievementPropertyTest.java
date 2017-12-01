@@ -7,8 +7,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.Event;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserversMap;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventOccurrence;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserversIndex;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 
 /**
  *

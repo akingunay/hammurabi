@@ -1,9 +1,13 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
 
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParser;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.RawEventLog;
 
 /**
  *
@@ -11,32 +15,77 @@ import java.util.Set;
  */
 public class EventTrace implements EventSubject {
 
-    private final List<EventOccurrence> eventOccurrences;
-    private final Set<Event> events;
+    private final List<EventLog> eventLogs;
+    private final Map<String, Event> eventIndex;
     private final long lastMoment;
-    private final EventObserversMap eventObserversMap;
+    private final EventObserversIndex eventObserversMap;
     
-    public EventTrace(long lastMoment) {
-        eventOccurrences = new ArrayList<>();   // TODO populate from imput
-        events = new HashSet<>();   // TODO populate from imput
-        this.lastMoment = lastMoment;
-        eventObserversMap = new EventObserversMap();
+    private static final long FIRST_ALLOWED_EVENT_MOMENT = 1;
+    
+    public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) {
+        List<EventLog> eventLogs = parseEventLogs(eventTraceStream);
+        Map<String, Event> eventIndex = extractEventIndexFromLogs(eventLogs);
+        if (lastMoment < eventLogs.get(eventLogs.size() - 1).getMoment()) {
+            // TODO exception
+        }
+        return new EventTrace(eventLogs, eventIndex, lastMoment);
     }
-        
+
+    private static List<EventLog> parseEventLogs(InputStream eventTraceStream) {
+        try {
+            List<RawEventLog> rawEventLogs = EventTraceParser.parse(eventTraceStream);
+            List<EventLog> eventLogs = new ArrayList<>(rawEventLogs.size());
+            long currentMoment = FIRST_ALLOWED_EVENT_MOMENT;
+            for (RawEventLog rawEventLog : rawEventLogs) {
+                if (rawEventLog.moment < currentMoment) {
+                    // TODO exception
+                }
+                eventLogs.add(EventLog.newEventLog(Event.newEvent(rawEventLog.eventLabel), rawEventLog.moment));
+                currentMoment = rawEventLog.moment;
+            }
+            return eventLogs;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;    // TODO decide what to do on parse exceptions
+        }
+    }
+    
+    private static Map<String, Event> extractEventIndexFromLogs(List<EventLog> eventLogs) {
+        Map<String, Event> eventIndex = new HashMap<>();
+        for (EventLog eventLog : eventLogs) {
+            if (eventIndex.containsKey(eventLog.getEvent().getEventLabel())) {
+                return null;    // TODO exception
+            }
+            eventIndex.put(eventLog.getEvent().getEventLabel(), eventLog.getEvent());
+        }
+        return eventIndex;
+    }
+    
+    private EventTrace(List<EventLog> eventLogs, Map<String, Event> eventIndex, long lastMoment) {
+        this.eventLogs = eventLogs;
+        this.eventIndex = eventIndex;
+        this.lastMoment = lastMoment;
+        this.eventObserversMap = new EventObserversIndex();
+    }
+    
     public void execute() {
         long currentMoment = 0;
-        int nextEventOccurrenceIndex = 0;
+        int nextEventLogIndex = 0;
         while (currentMoment <= lastMoment) {
-            notifyEventObservers(new EventOccurrence(Event.TICK, currentMoment));
-            nextEventOccurrenceIndex = executeEventsAtCurrentMoment(currentMoment, nextEventOccurrenceIndex);
+            notifyEventObservers(EventLog.newEventLog(Event.TICK, currentMoment));
+            nextEventLogIndex = executeEventsAtCurrentMoment(currentMoment, nextEventLogIndex);
             currentMoment++;
         }
     }
     
+    public Event getEventInstance(String eventLabel) {
+        return eventIndex.get(eventLabel);
+    }
+    
     private int executeEventsAtCurrentMoment(long currentMoment, int nextEventOccurenceIndex) {
-        while (eventOccurrences.size() <= nextEventOccurenceIndex && 
-                eventOccurrences.get(nextEventOccurenceIndex).getMoment() == currentMoment) {
-            notifyEventObservers(eventOccurrences.get(nextEventOccurenceIndex));
+        while (eventLogs.size() <= nextEventOccurenceIndex && 
+                eventLogs.get(nextEventOccurenceIndex).getMoment() == currentMoment) {
+            notifyEventObservers(eventLogs.get(nextEventOccurenceIndex));
             nextEventOccurenceIndex++;
         }
         return nextEventOccurenceIndex;
@@ -57,9 +106,9 @@ public class EventTrace implements EventSubject {
     }
 
     @Override
-    public void notifyEventObservers(EventOccurrence eventOccurrence) {
+    public void notifyEventObservers(EventLog eventLog) {
         // validate
-        eventObserversMap.notifyObserversOfEventOccurrence(eventOccurrence);
+        eventObserversMap.notifyObserversOfEventLog(eventLog);
         
     }
 
