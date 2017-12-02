@@ -28,4 +28,9 @@ public class AndExpression implements PropertyExpression {
         }
     }
 
+    @Override
+    public String toString() {
+        return "(" + firstConjunct + ") & (" + secondConjunct + ")";
+    }
+    
 }

@@ -26,4 +26,10 @@ public class OrExpression implements PropertyExpression {
             return PropertyState.UNDETERMINED;
         }
     }
+    
+    @Override
+    public String toString() {
+        return "(" + firstDisjunct + ") & (" + secondDisjunct + ")";
+    }
+    
 }

@@ -53,5 +53,9 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
         this.propertyState = propertyState;
     }
     
+    public PropertyState getState() {
+        return propertyState;
+    }
+    
     protected abstract void evaluate(EventLog eventOccurrence);  
 }

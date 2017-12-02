@@ -1,0 +1,1 @@
+(Achieve(event1)[1,2] & (Maintain(event2, event3)[3,5] | Achieve(event4)[4,5]))

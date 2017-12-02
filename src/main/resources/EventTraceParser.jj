@@ -8,8 +8,20 @@ import java.util.List;
 
 public class EventTraceParser {
 
+    private static boolean initialized;
+
+    static {
+        initialized = false;
+    }
+
     public static List<RawEventLog> parse(InputStream inputStream) throws ParseException {
-        return (new EventTraceParser(inputStream)).eventLogs();
+        if (!initialized) {
+            new EventTraceParser(inputStream);
+            initialized = true;
+        } else {
+            ReInit(inputStream);
+        }
+        return eventLogs();
     }
 }
 
@@ -36,17 +48,19 @@ List<RawEventLog> eventLogs() : {
 }
 {
     ( eventLog = eventLog() {eventLogs.add(eventLog);} )+
+    <EOF>
     {return eventLogs;}
 }
 
 RawEventLog eventLog() : {
     String eventLabel;
     long moment;
-    Token token;
+    Token localToken;
 }
 {
-    token = <EVENT_LABEL> {eventLabel = token.image;}
+    localToken = <EVENT_LABEL> {eventLabel = localToken.image;}
     <COMMA>
-    token = <NUM> {moment = Long.parseLong(token.image);}
+    localToken = <NUM> {moment = Long.parseLong(localToken.image);}
+    <SEMICOLON>
     {return new RawEventLog(eventLabel, moment);}
 }

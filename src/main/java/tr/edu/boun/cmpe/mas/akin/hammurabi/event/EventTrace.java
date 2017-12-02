@@ -22,39 +22,34 @@ public class EventTrace implements EventSubject {
     
     private static final long FIRST_ALLOWED_EVENT_MOMENT = 1;
     
-    public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) {
+    public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) throws ParseException {
         List<EventLog> eventLogs = parseEventLogs(eventTraceStream);
         Map<String, Event> eventIndex = extractEventIndexFromLogs(eventLogs);
         if (lastMoment < eventLogs.get(eventLogs.size() - 1).getMoment()) {
-            // TODO exception
+            throw new IllegalArgumentException("Given last moment " + lastMoment + " cannot be greater than the moment of the last event in the trace.");
         }
         return new EventTrace(eventLogs, eventIndex, lastMoment);
     }
 
-    private static List<EventLog> parseEventLogs(InputStream eventTraceStream) {
-        try {
-            List<RawEventLog> rawEventLogs = EventTraceParser.parse(eventTraceStream);
-            List<EventLog> eventLogs = new ArrayList<>(rawEventLogs.size());
-            long currentMoment = FIRST_ALLOWED_EVENT_MOMENT;
-            for (RawEventLog rawEventLog : rawEventLogs) {
-                if (rawEventLog.moment < currentMoment) {
-                    // TODO exception
-                }
-                eventLogs.add(EventLog.newEventLog(Event.newEvent(rawEventLog.eventLabel), rawEventLog.moment));
-                currentMoment = rawEventLog.moment;
+    private static List<EventLog> parseEventLogs(InputStream eventTraceStream) throws ParseException {
+        List<RawEventLog> rawEventLogs = EventTraceParser.parse(eventTraceStream);
+        List<EventLog> eventLogs = new ArrayList<>(rawEventLogs.size());
+        long currentMoment = FIRST_ALLOWED_EVENT_MOMENT;
+        for (RawEventLog rawEventLog : rawEventLogs) {
+            if (rawEventLog.moment < currentMoment) {
+                throw new ParseException("Evens must be happen in order.");
             }
-            return eventLogs;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;    // TODO decide what to do on parse exceptions
+            eventLogs.add(EventLog.newEventLog(Event.newEvent(rawEventLog.eventLabel), rawEventLog.moment));
+            currentMoment = rawEventLog.moment;
         }
+        return eventLogs;
     }
     
-    private static Map<String, Event> extractEventIndexFromLogs(List<EventLog> eventLogs) {
+    private static Map<String, Event> extractEventIndexFromLogs(List<EventLog> eventLogs) throws ParseException  {
         Map<String, Event> eventIndex = new HashMap<>();
         for (EventLog eventLog : eventLogs) {
             if (eventIndex.containsKey(eventLog.getEvent().getEventLabel())) {
-                return null;    // TODO exception
+                throw new ParseException("An event can happen only once.");
             }
             eventIndex.put(eventLog.getEvent().getEventLabel(), eventLog.getEvent());
         }

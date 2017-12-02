@@ -45,9 +45,15 @@ public class AchievementProperty extends Property {
         }
     }
 
-    protected void setTerminalState(PropertyState propertyState) {
+    private void setTerminalState(PropertyState propertyState) {
         setState(propertyState);
         notifyPropertyObservers();
         eventTrace.removeEventObserver(this, event);
     }
+
+    @Override
+    public String toString() {
+        return "A(" + event + ")[" + intervalStart + ", " + intervalEnd + "]<" + getState() + ">";
+    }
+     
 }

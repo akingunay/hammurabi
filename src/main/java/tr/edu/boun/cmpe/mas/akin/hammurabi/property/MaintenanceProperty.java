@@ -63,5 +63,10 @@ public class MaintenanceProperty extends Property {
         eventTrace.removeEventObserver(this, requiredEvent);
         eventTrace.removeEventObserver(this, failureEvent);
     }
-
+    
+    @Override
+    public String toString() {
+        return "M(" + requiredEvent + ", " + failureEvent + ")[" + intervalStart + ", " + intervalEnd + "]<" + getState() + ">";
+    }
+    
 }

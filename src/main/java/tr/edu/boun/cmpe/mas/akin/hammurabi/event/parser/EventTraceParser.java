@@ -7,8 +7,20 @@ import java.util.List;
 
 public class EventTraceParser implements EventTraceParserConstants {
 
+    private static boolean initialized;
+
+    static {
+        initialized = false;
+    }
+
     public static List<RawEventLog> parse(InputStream inputStream) throws ParseException {
-        return (new EventTraceParser(inputStream)).eventLogs();
+        if (!initialized) {
+            new EventTraceParser(inputStream);
+            initialized = true;
+        } else {
+            ReInit(inputStream);
+        }
+        return eventLogs();
     }
 
   static final public List<RawEventLog> eventLogs() throws ParseException {
@@ -27,6 +39,7 @@ public class EventTraceParser implements EventTraceParserConstants {
         break label_1;
       }
     }
+    jj_consume_token(0);
      {if (true) return eventLogs;}
     throw new Error("Missing return statement in function");
   }
@@ -34,12 +47,13 @@ public class EventTraceParser implements EventTraceParserConstants {
   static final public RawEventLog eventLog() throws ParseException {
     String eventLabel;
     long moment;
-    Token token;
-    token = jj_consume_token(EVENT_LABEL);
-                           eventLabel = token.image;
+    Token localToken;
+    localToken = jj_consume_token(EVENT_LABEL);
+                                eventLabel = localToken.image;
     jj_consume_token(COMMA);
-    token = jj_consume_token(NUM);
-                   moment = Long.parseLong(token.image);
+    localToken = jj_consume_token(NUM);
+                        moment = Long.parseLong(localToken.image);
+    jj_consume_token(SEMICOLON);
      {if (true) return new RawEventLog(eventLabel, moment);}
     throw new Error("Missing return statement in function");
   }

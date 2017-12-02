@@ -1,0 +1,145 @@
+PARSER_BEGIN(SocialProtocolParser)
+
+package tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.BinaryExpressionToken;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.CompoundPropertyToken;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyToken;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyExpressionToken;
+
+public class SocialProtocolParser {
+
+    private static boolean initialized;
+
+    static {
+        initialized = false;
+    }
+
+    public static CompoundPropertyToken parse(InputStream inputStream) throws ParseException {
+        if (!initialized) {
+            new SocialProtocolParser(inputStream);
+            initialized = true;
+        } else {
+            ReInit(inputStream);
+        }
+        return compoundProperty();
+    }
+}
+
+PARSER_END(SocialProtocolParser)
+
+SKIP : {" " | "\t" | "\n" | "\r"}
+
+TOKEN : {
+    < APROP: "Achieve" > |
+    < MPROP: "Maintain" > |
+    < LOR: "|" > |
+    < LAND: "&" > |
+    < LPARAN: "(" > |
+    < RPARAN: ")" > |
+    < LSQBRA: "[" > |
+    < RSQBRA: "]" > |
+    < COMMA: "," >
+}
+
+TOKEN : {
+    < EVENT_LABEL : ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
+}
+
+TOKEN : {
+    < NUMBER : ["1" - "9"] (["0" - "9"])* >
+}
+
+CompoundPropertyToken compoundProperty() : {
+    PropertyExpressionToken expression;
+} {
+    expression = expression() <EOF> {return new CompoundPropertyToken(expression);}
+}
+
+PropertyExpressionToken expression() : {
+    PropertyExpressionToken expressionToken;
+} {
+    expressionToken = orExpression() {return expressionToken;}
+}
+
+PropertyExpressionToken orExpression() : {
+    PropertyExpressionToken expressionToken;
+    List<PropertyExpressionToken> expressionTokens = new ArrayList();
+} {
+    expressionToken = andExpression() {expressionTokens.add(expressionToken);}
+    ( "|" expressionToken = andExpression() {expressionTokens.add(expressionToken);} )*
+    {
+        if (expressionTokens.size() == 1) {
+            return expressionToken;
+        } else {
+            int index = expressionTokens.size() - 1;
+            PropertyExpressionToken previousToken = new BinaryExpressionToken(BinaryExpressionToken.OR, expressionTokens.get(index - 1), expressionTokens.get(index));
+            PropertyExpressionToken currentToken = null;
+            for (index = index - 2 ; 0 <= index ; index--) {
+                currentToken = new BinaryExpressionToken(BinaryExpressionToken.OR, expressionTokens.get(index), previousToken);
+                previousToken = currentToken;
+            }
+            return previousToken;
+        }
+    }
+}
+
+PropertyExpressionToken andExpression() : {
+    PropertyExpressionToken expressionToken;
+    List<PropertyExpressionToken> expressionTokens = new ArrayList();
+}
+{
+    expressionToken = unaryExpression() {expressionTokens.add(expressionToken);}
+    ( "&" expressionToken = unaryExpression() {expressionTokens.add(expressionToken);} )*
+    {
+        if (expressionTokens.size() == 1) {
+            return expressionToken;
+        } else {
+            int index = expressionTokens.size() - 1;
+            PropertyExpressionToken previousToken = new BinaryExpressionToken(BinaryExpressionToken.AND, expressionTokens.get(index - 1), expressionTokens.get(index));
+            PropertyExpressionToken currentToken = null;
+            for (index = index - 2 ; 0 <= index ; index--) {
+                currentToken = new BinaryExpressionToken(BinaryExpressionToken.AND, expressionTokens.get(index), previousToken);
+                previousToken = currentToken;
+            }
+            return previousToken;
+        }
+    }
+}
+
+PropertyExpressionToken unaryExpression() : {
+    PropertyExpressionToken expressionToken;
+} {
+    ( <LPARAN> expressionToken = expression() <RPARAN> | expressionToken = property() )
+    {return expressionToken;}
+}
+
+PropertyExpressionToken property() : {
+    String type;
+    List<String> eventLabels = new ArrayList();
+    long intervalStart;
+    long intervalEnd;
+    Token localToken;
+} {
+    ((
+        <APROP> {type = PropertyToken.ACHIEVEMENT;} 
+        <LPARAN>
+        localToken = <EVENT_LABEL> {eventLabels.add(localToken.image);}
+    ) | (
+        <MPROP> {type = PropertyToken.MAINTENANCE;}
+        <LPARAN>
+        localToken = <EVENT_LABEL> {eventLabels.add(localToken.image);}
+        <COMMA>
+        localToken = <EVENT_LABEL> {eventLabels.add(localToken.image);}
+    ))
+    <RPARAN>
+    <LSQBRA>
+    localToken = <NUMBER> {intervalStart = Long.parseLong(localToken.image);}
+    <COMMA>
+    localToken = <NUMBER> {intervalEnd = Long.parseLong(localToken.image);}
+    <RSQBRA>
+    {return new PropertyToken(type, eventLabels, intervalStart, intervalEnd);}
+}
