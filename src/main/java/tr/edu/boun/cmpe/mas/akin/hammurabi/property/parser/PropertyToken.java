@@ -21,7 +21,6 @@ public class PropertyToken extends PropertyExpressionToken {
     private final long intervalEnd;
 
     public PropertyToken(String type, List<String> eventLabels, long intervalStart, long intervalEnd) {
-        // validate
         this.type = type;
         this.eventLabels = eventLabels;
         this.intervalStart = intervalStart;
@@ -30,7 +29,7 @@ public class PropertyToken extends PropertyExpressionToken {
     
     @Override
     PropertyExpression getPropertyExpression(final EventTrace eventTrace) {
-        // validate
+        // TODO validate input
         if (type.equals(ACHIEVEMENT)) {
             return AchievementProperty.newAchievementProperty(eventLabels.get(0), intervalStart, intervalEnd, eventTrace);
         }

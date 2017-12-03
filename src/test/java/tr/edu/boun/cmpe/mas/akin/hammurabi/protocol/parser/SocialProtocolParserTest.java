@@ -1,5 +1,6 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser;
 
+import java.util.Set;
 import org.junit.Test;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.CompoundPropertyToken;
@@ -18,8 +19,10 @@ public class SocialProtocolParserTest {
     @Test
     public void testValidInput() throws ParseException, tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException {
         EventTrace eventTrace = EventTrace.newEventTrace(getClass().getResourceAsStream("/event/testValidInput.etr"), 100);
-        CompoundPropertyToken cpt = SocialProtocolParser.parse(getClass().getResourceAsStream("/protocol/testValidInput.sop"));
-        //System.out.println(cpt.getCompoundPropertyInstance(eventTrace));
+        Set<CompoundPropertyToken> cpts = SocialProtocolParser.parse(getClass().getResourceAsStream("/protocol/testValidInput.sop"));
+        for (CompoundPropertyToken cpt : cpts) {
+            System.out.println(cpt.getCompoundPropertyInstance(eventTrace));
+        }
     }
     
     @Test(expected=ParseException.class)

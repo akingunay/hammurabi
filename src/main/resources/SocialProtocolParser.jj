@@ -4,7 +4,9 @@ package tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.BinaryExpressionToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.CompoundPropertyToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyToken;
@@ -18,14 +20,14 @@ public class SocialProtocolParser {
         initialized = false;
     }
 
-    public static CompoundPropertyToken parse(InputStream inputStream) throws ParseException {
+    public static Set<CompoundPropertyToken> parse(InputStream inputStream) throws ParseException {
         if (!initialized) {
             new SocialProtocolParser(inputStream);
             initialized = true;
         } else {
             ReInit(inputStream);
         }
-        return compoundProperty();
+        return protocol();
     }
 }
 
@@ -34,15 +36,16 @@ PARSER_END(SocialProtocolParser)
 SKIP : {" " | "\t" | "\n" | "\r"}
 
 TOKEN : {
-    < APROP: "Achieve" > |
-    < MPROP: "Maintain" > |
-    < LOR: "|" > |
-    < LAND: "&" > |
-    < LPARAN: "(" > |
-    < RPARAN: ")" > |
-    < LSQBRA: "[" > |
-    < RSQBRA: "]" > |
-    < COMMA: "," >
+    < APROP:    "Achieve" > |
+    < MPROP:    "Maintain" > |
+    < LOR:      "|" > |
+    < LAND:     "&" > |
+    < LPARAN:   "(" > |
+    < RPARAN:   ")" > |
+    < LSQBRA:   "[" > |
+    < RSQBRA:   "]" > |
+    < SEMICOL:  ";" > |
+    < COMMA:    "," >
 }
 
 TOKEN : {
@@ -53,10 +56,19 @@ TOKEN : {
     < NUMBER : ["1" - "9"] (["0" - "9"])* >
 }
 
+Set<CompoundPropertyToken> protocol() : {
+    Set<CompoundPropertyToken> compoundPropertyTokens = new HashSet();
+    CompoundPropertyToken compoundPropertyToken;
+} {
+    ( compoundPropertyToken = compoundProperty() <SEMICOL> {compoundPropertyTokens.add(compoundPropertyToken);} )+
+    <EOF>
+    {return compoundPropertyTokens;}
+}
+
 CompoundPropertyToken compoundProperty() : {
     PropertyExpressionToken expression;
 } {
-    expression = expression() <EOF> {return new CompoundPropertyToken(expression);}
+    expression = expression() {return new CompoundPropertyToken(expression);}
 }
 
 PropertyExpressionToken expression() : {

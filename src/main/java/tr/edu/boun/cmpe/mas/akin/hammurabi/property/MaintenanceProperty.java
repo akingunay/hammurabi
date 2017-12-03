@@ -5,7 +5,8 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
 
 /**
- *
+ * Represents an maintenance property.
+ * 
  * @author Akin Gunay
  */
 public class MaintenanceProperty extends Property {
@@ -19,7 +20,8 @@ public class MaintenanceProperty extends Property {
     private boolean currenltyMaintaining;
     
     public static MaintenanceProperty newMaintenanceProperty(String requiredEventLabel, String failureEventLabel, long intervalStart, long intervalEnd, EventTrace eventTrace) {
-        // TODO validate
+        // TODO validate input
+        // TODO validate eventTrace.getEventInstance(eventLabel) does not return null, which occurs when eventLabel does not correspond to an event in the event trace.
         MaintenanceProperty maintenanceProperty = new MaintenanceProperty(eventTrace.getEventInstance(requiredEventLabel), eventTrace.getEventInstance(failureEventLabel), intervalStart, intervalEnd, eventTrace);
         eventTrace.registerEventObserver(maintenanceProperty, maintenanceProperty.requiredEvent);
         eventTrace.registerEventObserver(maintenanceProperty, maintenanceProperty.failureEvent);
@@ -37,21 +39,20 @@ public class MaintenanceProperty extends Property {
 
     // occurrence of both events at the same moment is undefined
     @Override
-    protected void evaluate(EventLog eventOccurrence) {
-        // validation
-        if (eventOccurrence.getEvent().equals(Event.TICK)) {
-            if (intervalStart + 1 == eventOccurrence.getMoment() && !currenltyMaintaining) {
+    protected void evaluate(EventLog eventLog) {
+        if (eventLog.getEvent().equals(Event.TICK)) {
+            if (intervalStart + 1 == eventLog.getMoment() && !currenltyMaintaining) {
                 setTerminalState(PropertyState.FAILED);
             }
-            if (intervalEnd == eventOccurrence.getMoment()) {
+            if (intervalEnd == eventLog.getMoment()) {
                 setTerminalState(PropertyState.SATISFIED);
             }
-        } else if (eventOccurrence.getEvent().equals(requiredEvent)){
-            if (intervalStart == eventOccurrence.getMoment()) {
+        } else if (eventLog.getEvent().equals(requiredEvent)){
+            if (intervalStart == eventLog.getMoment()) {
                 currenltyMaintaining = true;
             }
-        } else if (eventOccurrence.getEvent().equals(failureEvent)) {
-            if (intervalStart <= eventOccurrence.getMoment() && eventOccurrence.getMoment() < intervalEnd) {
+        } else if (eventLog.getEvent().equals(failureEvent)) {
+            if (intervalStart <= eventLog.getMoment() && eventLog.getMoment() < intervalEnd) {
                 setTerminalState(PropertyState.FAILED);
             }
         }
@@ -66,7 +67,7 @@ public class MaintenanceProperty extends Property {
     
     @Override
     public String toString() {
-        return "M(" + requiredEvent + ", " + failureEvent + ")[" + intervalStart + ", " + intervalEnd + "]<" + getState() + ">";
+        return "M(" + requiredEvent + ", " + failureEvent + ")[" + intervalStart + ", " + intervalEnd + "]<" + evaluate() + ">";
     }
     
 }

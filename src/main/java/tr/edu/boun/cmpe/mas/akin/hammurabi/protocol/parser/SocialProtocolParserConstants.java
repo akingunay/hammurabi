@@ -27,11 +27,13 @@ public interface SocialProtocolParserConstants {
   /** RegularExpression Id. */
   int RSQBRA = 12;
   /** RegularExpression Id. */
-  int COMMA = 13;
+  int SEMICOL = 13;
   /** RegularExpression Id. */
-  int EVENT_LABEL = 14;
+  int COMMA = 14;
   /** RegularExpression Id. */
-  int NUMBER = 15;
+  int EVENT_LABEL = 15;
+  /** RegularExpression Id. */
+  int NUMBER = 16;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -51,6 +53,7 @@ public interface SocialProtocolParserConstants {
     "\")\"",
     "\"[\"",
     "\"]\"",
+    "\";\"",
     "\",\"",
     "<EVENT_LABEL>",
     "<NUMBER>",

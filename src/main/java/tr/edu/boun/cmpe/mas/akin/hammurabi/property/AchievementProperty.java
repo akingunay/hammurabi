@@ -5,7 +5,8 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.Event;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
 
 /**
- *
+ * Represents an achievement property.
+ * 
  * @author Akin Gunay
  */
 public class AchievementProperty extends Property {
@@ -16,7 +17,8 @@ public class AchievementProperty extends Property {
     private final EventTrace eventTrace;
 
     public static AchievementProperty newAchievementProperty(String eventLabel, long intervalStart, long intervalEnd, EventTrace eventTrace) {
-        // TODO validate
+        // TODO validate input
+        // TODO validate eventTrace.getEventInstance(eventLabel) does not return null, which occurs when eventLabel does not correspond to an event in the event trace.
         AchievementProperty achievementProperty = new AchievementProperty(eventTrace.getEventInstance(eventLabel), intervalStart, intervalEnd, eventTrace);
         eventTrace.registerEventObserver(achievementProperty, achievementProperty.event);
         return achievementProperty;
@@ -30,15 +32,14 @@ public class AchievementProperty extends Property {
     }
 
     @Override
-    protected void evaluate(EventLog eventOccurrence) {
-        // validation
+    protected void evaluate(EventLog eventLog) {
         if (evaluate().equals(PropertyState.UNDETERMINED)) {
-            if (eventOccurrence.getEvent().equals(Event.TICK)) {
-                if (intervalEnd == eventOccurrence.getMoment()) {
+            if (eventLog.getEvent().equals(Event.TICK)) {
+                if (intervalEnd == eventLog.getMoment()) {
                     setTerminalState(PropertyState.FAILED);
                 }
             } else {
-                if (intervalStart <= eventOccurrence.getMoment() && eventOccurrence.getMoment() < intervalEnd) {
+                if (intervalStart <= eventLog.getMoment() && eventLog.getMoment() < intervalEnd) {
                     setTerminalState(PropertyState.SATISFIED);
                 }
             }
@@ -53,7 +54,7 @@ public class AchievementProperty extends Property {
 
     @Override
     public String toString() {
-        return "A(" + event + ")[" + intervalStart + ", " + intervalEnd + "]<" + getState() + ">";
+        return "A(" + event + ")[" + intervalStart + ", " + intervalEnd + "]<" + evaluate() + ">";
     }
-     
+    
 }

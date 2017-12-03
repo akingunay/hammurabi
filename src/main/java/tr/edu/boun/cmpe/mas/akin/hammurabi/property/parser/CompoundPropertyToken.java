@@ -15,7 +15,7 @@ public class CompoundPropertyToken {
         this.expression = expression;
     }
     
-    public CompoundProperty getCompoundPropertyInstance(EventTrace eventTrace) {
+    public CompoundProperty getCompoundPropertyInstance(final EventTrace eventTrace) {
         return new CompoundProperty(expression.getPropertyExpression(eventTrace));
     }
 }

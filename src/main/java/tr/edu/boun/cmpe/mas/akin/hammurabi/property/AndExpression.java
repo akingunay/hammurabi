@@ -1,7 +1,11 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.property;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- *
+ * Conjunction of two property expressions.
+ * 
  * @author Akin Gunay
  */
 public class AndExpression implements PropertyExpression {
@@ -9,8 +13,10 @@ public class AndExpression implements PropertyExpression {
     private final PropertyExpression firstConjunct;
     private final PropertyExpression secondConjunct;
 
+    // TODO static initializer
+    
     public AndExpression(PropertyExpression firstConjunct, PropertyExpression secondConjunct) {
-        // validate
+        // TODO validate input
         this.firstConjunct = firstConjunct;
         this.secondConjunct = secondConjunct;
     }
@@ -28,6 +34,13 @@ public class AndExpression implements PropertyExpression {
         }
     }
 
+    @Override
+    public Set<Property> getProperties() {
+        Set<Property> properties = new HashSet<>(firstConjunct.getProperties());
+        properties.addAll(secondConjunct.getProperties());
+        return properties;
+    }
+    
     @Override
     public String toString() {
         return "(" + firstConjunct + ") & (" + secondConjunct + ")";

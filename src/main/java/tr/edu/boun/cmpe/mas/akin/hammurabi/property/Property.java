@@ -6,7 +6,11 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserver;
 
 /**
- *
+ * A base class for all property types. It encapsulates both observation of
+ * event happenings and notification of property observers for concrete
+ * properties. However, concrete properties should register themselves to
+ * events.
+ * 
  * @author Akin Gunay
  */
 public abstract class Property implements PropertyExpression, EventObserver, PropertySubject {
@@ -15,31 +19,39 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
     private PropertyState propertyState;
     
     protected Property() {
-        this.propertyState = PropertyState.UNDETERMINED;
-        this.propertyObservers = new HashSet<>();
+        propertyState = PropertyState.UNDETERMINED;
+        propertyObservers = new HashSet<>();
     }
 
+    protected void setState(PropertyState propertyState) {
+        this.propertyState = propertyState;
+    }
+    
     @Override
     public PropertyState evaluate() {
         return propertyState;
     }
-
+    
+    @Override
+    public Set<Property> getProperties() {
+        Set<Property> properties = new HashSet<>(1);
+        properties.add(this);
+        return properties;
+    }
+    
     @Override
     public void registerPropertyObserver(PropertyObserver propertyObserver) {
-        // validate
         propertyObservers.add(propertyObserver);
     }
 
     @Override
     public void removePropertyObserver(PropertyObserver propertyObserver) {
-        // validate
         propertyObservers.remove(propertyObserver);
     }
 
     @Override
     public void notifyPropertyObservers() {
-        Set<PropertyObserver> copyPropertyObservers = new HashSet<>(propertyObservers);
-        for (PropertyObserver propertyObserver : copyPropertyObservers) {
+        for (PropertyObserver propertyObserver : new HashSet<>(propertyObservers)) {
             propertyObserver.update(this, propertyState);
         }
     }
@@ -49,13 +61,6 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
         evaluate(eventOccurrence);
     }
     
-    protected void setState(PropertyState propertyState) {
-        this.propertyState = propertyState;
-    }
+    protected abstract void evaluate(EventLog eventLog);
     
-    public PropertyState getState() {
-        return propertyState;
-    }
-    
-    protected abstract void evaluate(EventLog eventOccurrence);  
 }

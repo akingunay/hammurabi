@@ -10,7 +10,6 @@ public class RawEventLog {
     public final long moment;
 
     public RawEventLog(String eventLabel, long moment) {
-        // validate
         this.eventLabel = eventLabel;
         this.moment = moment;
     }

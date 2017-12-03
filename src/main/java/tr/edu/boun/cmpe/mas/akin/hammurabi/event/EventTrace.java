@@ -10,7 +10,10 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.RawEventLog;
 
 /**
- *
+ * This class represents a trace of events happenings. It can execute the trace 
+ * (by generating a TICK event for each moment and) by notifying observers of
+ * the trace events about their happenings.
+ * 
  * @author Akin Gunay
  */
 public class EventTrace implements EventSubject {
@@ -34,6 +37,8 @@ public class EventTrace implements EventSubject {
         return new EventTrace(eventLogs, eventIndex, lastMoment);
     }
 
+    // TODO encapsulate creation of EventLog from RawEventLog in a wrapper class for EventTraceParser and
+    //      reduce access of all classes in parser package 
     private static List<EventLog> parseEventLogs(InputStream eventTraceStream) throws ParseException {
         List<RawEventLog> rawEventLogs = EventTraceParser.parse(eventTraceStream);
         List<EventLog> eventLogs = new ArrayList<>(rawEventLogs.size());
@@ -48,6 +53,7 @@ public class EventTrace implements EventSubject {
         return eventLogs;
     }
     
+    // TODO move checking cardinality contraints of event happenings into wrapper parser
     private static Map<String, Event> extractEventIndexFromLogs(List<EventLog> eventLogs) throws ParseException  {
         Map<String, Event> eventIndex = new HashMap<>();
         for (EventLog eventLog : eventLogs) {
