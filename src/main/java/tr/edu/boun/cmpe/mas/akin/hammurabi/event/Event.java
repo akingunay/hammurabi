@@ -3,12 +3,13 @@ package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
 import java.util.Objects;
 
 /**
- *
+ * This class represents a basic event that may happen in a system.  
+ * 
  * @author Akin Gunay
  */
 public class Event {
     
-    public static Event TICK;
+    public static final Event TICK;
     
     static {
         TICK = new Event("TICK");
@@ -55,6 +56,5 @@ public class Event {
     public String toString() {
         return label;
     }
-    
     
 }

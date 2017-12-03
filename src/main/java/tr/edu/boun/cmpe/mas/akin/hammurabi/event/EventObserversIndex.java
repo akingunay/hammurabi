@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * A (package access only) helper class that envelopes a map, to simplify
+ * indexing of event observers by EventTrace.
+ * 
  * @author Akin Gunay
  */
-public class EventObserversIndex {
+class EventObserversIndex {
 
     private final Map<Event, Set<EventObserver>> eventObserversMap;
     
@@ -18,7 +20,6 @@ public class EventObserversIndex {
     }
     
     public void addEventObserverToEvent(EventObserver eventObserver, Event event) {
-        // validate
         if (eventObserversMap.containsKey(event)) {
             eventObserversMap.get(event).add(eventObserver);
         } else {
@@ -29,7 +30,6 @@ public class EventObserversIndex {
     }
     
     public void removeEventObserverFromEvent(EventObserver eventObserver, Event event) {
-        // validate
         if (eventObserversMap.containsKey(event)) {
             eventObserversMap.get(event).remove(eventObserver);
             if (eventObserversMap.get(event).isEmpty()) {

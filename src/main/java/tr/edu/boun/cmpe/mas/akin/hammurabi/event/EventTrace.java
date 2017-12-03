@@ -18,15 +18,18 @@ public class EventTrace implements EventSubject {
     private final List<EventLog> eventLogs;
     private final Map<String, Event> eventIndex;
     private final long lastMoment;
-    private final EventObserversIndex eventObserversMap;
+    private final EventObserversIndex eventObserversIndex;
     
     private static final long FIRST_ALLOWED_EVENT_MOMENT = 1;
     
     public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) throws ParseException {
+        if (lastMoment < FIRST_ALLOWED_EVENT_MOMENT) {
+            throw new IllegalArgumentException("Last moment cannot be before the first allowed event moment.");
+        }
         List<EventLog> eventLogs = parseEventLogs(eventTraceStream);
         Map<String, Event> eventIndex = extractEventIndexFromLogs(eventLogs);
         if (lastMoment < eventLogs.get(eventLogs.size() - 1).getMoment()) {
-            throw new IllegalArgumentException("Given last moment " + lastMoment + " cannot be greater than the moment of the last event in the trace.");
+            throw new IllegalArgumentException("Last moment cannot be before the moment of the last event in the trace.");
         }
         return new EventTrace(eventLogs, eventIndex, lastMoment);
     }
@@ -37,7 +40,7 @@ public class EventTrace implements EventSubject {
         long currentMoment = FIRST_ALLOWED_EVENT_MOMENT;
         for (RawEventLog rawEventLog : rawEventLogs) {
             if (rawEventLog.moment < currentMoment) {
-                throw new ParseException("Evens must be happen in order.");
+                throw new ParseException("Events must happen in order.");
             }
             eventLogs.add(EventLog.newEventLog(Event.newEvent(rawEventLog.eventLabel), rawEventLog.moment));
             currentMoment = rawEventLog.moment;
@@ -60,7 +63,7 @@ public class EventTrace implements EventSubject {
         this.eventLogs = eventLogs;
         this.eventIndex = eventIndex;
         this.lastMoment = lastMoment;
-        this.eventObserversMap = new EventObserversIndex();
+        this.eventObserversIndex = new EventObserversIndex();
     }
     
     public void execute() {
@@ -73,38 +76,39 @@ public class EventTrace implements EventSubject {
         }
     }
     
+    private int executeEventsAtCurrentMoment(long currentMoment, int nextEventLogIndex) {
+        while (eventLogs.size() <= nextEventLogIndex && 
+                eventLogs.get(nextEventLogIndex).getMoment() == currentMoment) {
+            notifyEventObservers(eventLogs.get(nextEventLogIndex));
+            nextEventLogIndex++;
+        }
+        return nextEventLogIndex;
+    }
+    
     public Event getEventInstance(String eventLabel) {
         return eventIndex.get(eventLabel);
     }
     
-    private int executeEventsAtCurrentMoment(long currentMoment, int nextEventOccurenceIndex) {
-        while (eventLogs.size() <= nextEventOccurenceIndex && 
-                eventLogs.get(nextEventOccurenceIndex).getMoment() == currentMoment) {
-            notifyEventObservers(eventLogs.get(nextEventOccurenceIndex));
-            nextEventOccurenceIndex++;
-        }
-        return nextEventOccurenceIndex;
-    }
-    
     @Override
     public void registerEventObserver(EventObserver eventObserver, Event event) {
-        // validate event is in events
-        // validate
-        eventObserversMap.addEventObserverToEvent(eventObserver, event);
+        // TODO validate input
+        if (eventIndex.containsKey(event.getEventLabel())) {
+            eventObserversIndex.addEventObserverToEvent(eventObserver, event);
+        }
+        // TODO an unchecked exception in the else case would help to detect issues earlier
     }
 
     @Override
     public void removeEventObserver(EventObserver eventObserver, Event event) {
-        // validate event is in events
-        // validate
-        eventObserversMap.removeEventObserverFromEvent(eventObserver, event);
+        // TODO validate input
+        if (eventIndex.containsKey(event.getEventLabel())) {
+            eventObserversIndex.removeEventObserverFromEvent(eventObserver, event);
+        }
     }
 
     @Override
     public void notifyEventObservers(EventLog eventLog) {
-        // validate
-        eventObserversMap.notifyObserversOfEventLog(eventLog);
-        
+        eventObserversIndex.notifyObserversOfEventLog(eventLog);
     }
 
 }
