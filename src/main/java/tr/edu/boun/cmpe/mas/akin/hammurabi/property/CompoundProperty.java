@@ -43,7 +43,9 @@ public class CompoundProperty implements PropertyExpression, PropertyObserver, C
     //      could be cretaed in the constructor for efficient updates.
     @Override
     public void update(Property property, PropertyState propertyState) {
+        System.out.print("Notified about " + property + " is " + propertyState);
         compoundPropertyState = expression.evaluate();
+        System.out.println(" and state of compound is " + compoundPropertyState);
         if (compoundPropertyState.equals(PropertyState.FAILED) || compoundPropertyState.equals(PropertyState.SATISFIED)) {
             notifyCompoundPropertyObservers();
             for (Property observedProperty : expression.getProperties()) {
@@ -70,6 +72,7 @@ public class CompoundProperty implements PropertyExpression, PropertyObserver, C
     @Override
     public void notifyCompoundPropertyObservers() {
         for (CompoundPropertyObserver compoundPropertyObserver : new HashSet<>(compoundPropertyObservers)) {
+            System.out.println("Notifying " + compoundPropertyObserver);
             compoundPropertyObserver.update(this, compoundPropertyState);
         }
     }

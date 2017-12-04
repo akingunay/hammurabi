@@ -23,6 +23,7 @@ public class MaintenanceProperty extends Property {
         // TODO validate input
         // TODO validate eventTrace.getEventInstance(eventLabel) does not return null, which occurs when eventLabel does not correspond to an event in the event trace.
         MaintenanceProperty maintenanceProperty = new MaintenanceProperty(eventTrace.getEventInstance(requiredEventLabel), eventTrace.getEventInstance(failureEventLabel), intervalStart, intervalEnd, eventTrace);
+        eventTrace.registerEventObserver(maintenanceProperty, Event.TICK);
         eventTrace.registerEventObserver(maintenanceProperty, maintenanceProperty.requiredEvent);
         eventTrace.registerEventObserver(maintenanceProperty, maintenanceProperty.failureEvent);
         return maintenanceProperty;
@@ -61,6 +62,7 @@ public class MaintenanceProperty extends Property {
     protected void setTerminalState(PropertyState propertyState) {
         setState(propertyState);
         notifyPropertyObservers();
+        eventTrace.removeEventObserver(this, Event.TICK);
         eventTrace.removeEventObserver(this, requiredEvent);
         eventTrace.removeEventObserver(this, failureEvent);
     }

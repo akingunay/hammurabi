@@ -57,8 +57,9 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
     }
     
     @Override
-    public void update(EventLog eventOccurrence) {
-        evaluate(eventOccurrence);
+    public void update(EventLog eventLog) {
+        //System.out.println(this + ": notified about event " + eventLog + ".");
+        evaluate(eventLog);
     }
     
     protected abstract void evaluate(EventLog eventLog);

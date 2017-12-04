@@ -20,6 +20,7 @@ public class AchievementProperty extends Property {
         // TODO validate input
         // TODO validate eventTrace.getEventInstance(eventLabel) does not return null, which occurs when eventLabel does not correspond to an event in the event trace.
         AchievementProperty achievementProperty = new AchievementProperty(eventTrace.getEventInstance(eventLabel), intervalStart, intervalEnd, eventTrace);
+        eventTrace.registerEventObserver(achievementProperty, Event.TICK);
         eventTrace.registerEventObserver(achievementProperty, achievementProperty.event);
         return achievementProperty;
     }
@@ -34,13 +35,18 @@ public class AchievementProperty extends Property {
     @Override
     protected void evaluate(EventLog eventLog) {
         if (evaluate().equals(PropertyState.UNDETERMINED)) {
+            //System.out.println(this + ": starting an evaluation for ");
             if (eventLog.getEvent().equals(Event.TICK)) {
+                //System.out.println("\t" + eventLog + " AS TICK");
                 if (intervalEnd == eventLog.getMoment()) {
                     setTerminalState(PropertyState.FAILED);
+                    //System.out.println(this + " FAILED.");
                 }
             } else {
+                //System.out.println("\t" + eventLog);
                 if (intervalStart <= eventLog.getMoment() && eventLog.getMoment() < intervalEnd) {
                     setTerminalState(PropertyState.SATISFIED);
+                    //System.out.println(this + " SATISFIED.");
                 }
             }
         }
@@ -49,6 +55,7 @@ public class AchievementProperty extends Property {
     private void setTerminalState(PropertyState propertyState) {
         setState(propertyState);
         notifyPropertyObservers();
+        eventTrace.removeEventObserver(this, Event.TICK);
         eventTrace.removeEventObserver(this, event);
     }
 

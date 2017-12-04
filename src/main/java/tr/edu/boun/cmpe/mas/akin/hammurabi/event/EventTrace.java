@@ -31,6 +31,7 @@ public class EventTrace implements EventSubject {
         }
         List<EventLog> eventLogs = parseEventLogs(eventTraceStream);
         Map<String, Event> eventIndex = extractEventIndexFromLogs(eventLogs);
+        eventIndex.put(Event.TICK.getEventLabel(), Event.TICK);
         if (lastMoment < eventLogs.get(eventLogs.size() - 1).getMoment()) {
             throw new IllegalArgumentException("Last moment cannot be before the moment of the last event in the trace.");
         }
@@ -75,6 +76,12 @@ public class EventTrace implements EventSubject {
     public void execute() {
         long currentMoment = 0;
         int nextEventLogIndex = 0;
+        
+//        System.out.println(eventObserversIndex);
+//        for(EventLog eventLog : eventLogs) {
+//            System.out.println(eventLog);
+//        } 
+        
         while (currentMoment <= lastMoment) {
             notifyEventObservers(EventLog.newEventLog(Event.TICK, currentMoment));
             nextEventLogIndex = executeEventsAtCurrentMoment(currentMoment, nextEventLogIndex);
@@ -83,8 +90,8 @@ public class EventTrace implements EventSubject {
     }
     
     private int executeEventsAtCurrentMoment(long currentMoment, int nextEventLogIndex) {
-        while (eventLogs.size() <= nextEventLogIndex && 
-                eventLogs.get(nextEventLogIndex).getMoment() == currentMoment) {
+        //System.out.println("Current Moment: " + currentMoment + " NextEventLogIndex: " + nextEventLogIndex);
+        while (nextEventLogIndex < eventLogs.size() && eventLogs.get(nextEventLogIndex).getMoment() == currentMoment) {
             notifyEventObservers(eventLogs.get(nextEventLogIndex));
             nextEventLogIndex++;
         }

@@ -1,0 +1,2 @@
+(Achieve(event1)[5,15] & Maintain(event2, event3)[20,25]);
+(Achieve(event1)[11,15] | Maintain(event2, event3)[20,35]);

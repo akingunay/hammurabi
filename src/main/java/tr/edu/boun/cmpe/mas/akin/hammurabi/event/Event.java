@@ -49,7 +49,7 @@ public class Event {
             return false;
         }
         final Event other = (Event) obj;
-        return !Objects.equals(this.label, other.label);
+        return this.label.equals(other.label);
     }
 
     @Override

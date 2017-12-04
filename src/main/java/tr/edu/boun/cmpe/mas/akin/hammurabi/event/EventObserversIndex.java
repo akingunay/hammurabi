@@ -40,9 +40,26 @@ class EventObserversIndex {
     }
     
     public void notifyObserversOfEventLog(EventLog eventLog) {
-        Set<EventObserver> copyEventObservers = new HashSet<>(eventObserversMap.get(eventLog.getEvent()));
-        for (EventObserver eventObserver : copyEventObservers) {
-            eventObserver.update(eventLog);
+        if (eventObserversMap.containsKey(eventLog.getEvent())) {
+            //System.out.println("Notifying observers for " + eventLog + ".");
+            Set<EventObserver> copyEventObservers = new HashSet<>(eventObserversMap.get(eventLog.getEvent()));
+            for (EventObserver eventObserver : copyEventObservers) {
+                //System.out.println("\t" + eventObserver);
+                eventObserver.update(eventLog);
+            }
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        for (Event event : eventObserversMap.keySet()) {
+            str.append(event).append(":\n");
+            for (EventObserver observer : eventObserversMap.get(event)) {
+                str.append("\t").append(observer).append("\n");
+            }
+        }
+        return str.toString();
+    }
+    
 }

@@ -28,7 +28,7 @@ public class OrExpression implements PropertyExpression {
         if (firstDisjunctState.equals(PropertyState.SATISFIED) || secondDisjunctState.equals(PropertyState.SATISFIED)) {
             return PropertyState.SATISFIED;
         } else if (firstDisjunctState.equals(PropertyState.FAILED) && secondDisjunctState.equals(PropertyState.FAILED)) {
-            return PropertyState.SATISFIED;
+            return PropertyState.FAILED;
         } else {
             return PropertyState.UNDETERMINED;
         }
