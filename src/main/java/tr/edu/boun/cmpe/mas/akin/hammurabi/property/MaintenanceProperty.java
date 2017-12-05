@@ -61,7 +61,7 @@ public class MaintenanceProperty extends Property {
     
     protected void setTerminalState(PropertyState propertyState) {
         setState(propertyState);
-        notifyPropertyObservers();
+        notifyPropertyObservers();  // TODO move into Property
         eventTrace.removeEventObserver(this, Event.TICK);
         eventTrace.removeEventObserver(this, requiredEvent);
         eventTrace.removeEventObserver(this, failureEvent);

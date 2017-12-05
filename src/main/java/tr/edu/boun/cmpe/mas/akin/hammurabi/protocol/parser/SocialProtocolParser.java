@@ -10,6 +10,7 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.BinaryExpressionToken
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.CompoundPropertyToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyExpressionToken;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.NormToken;
 
 public class SocialProtocolParser implements SocialProtocolParserConstants {
 
@@ -19,7 +20,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
         initialized = false;
     }
 
-    public static Set<CompoundPropertyToken> parse(InputStream inputStream) throws ParseException {
+    public static Set<NormToken> parse(InputStream inputStream) throws ParseException {
         if (!initialized) {
             new SocialProtocolParser(inputStream);
             initialized = true;
@@ -29,18 +30,19 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
         return protocol();
     }
 
-  static final public Set<CompoundPropertyToken> protocol() throws ParseException {
-    Set<CompoundPropertyToken> compoundPropertyTokens = new HashSet();
-    CompoundPropertyToken compoundPropertyToken;
+  static final public Set<NormToken> protocol() throws ParseException {
+    Set<NormToken> normTokens = new HashSet();
+    NormToken normToken;
+    jj_consume_token(PROTOCOL);
+    jj_consume_token(LBRACE);
     label_1:
     while (true) {
-      compoundPropertyToken = compoundProperty();
-      jj_consume_token(SEMICOL);
-                                                            compoundPropertyTokens.add(compoundPropertyToken);
+      normToken = norm();
+                          normTokens.add(normToken);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case APROP:
-      case MPROP:
-      case LPARAN:
+      case COMMIT:
+      case PROHIBIT:
+      case AUTHORIZE:
         ;
         break;
       default:
@@ -48,8 +50,108 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
         break label_1;
       }
     }
+    jj_consume_token(RBRACE);
     jj_consume_token(0);
-     {if (true) return compoundPropertyTokens;}
+     {if (true) return normTokens;}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public NormToken norm() throws ParseException {
+    NormToken norm;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case COMMIT:
+      norm = commit();
+      break;
+    case PROHIBIT:
+      norm = prohibit();
+      break;
+    case AUTHORIZE:
+      norm = authorize();
+      break;
+    default:
+      jj_la1[1] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+                                                                  {if (true) return norm;}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public NormToken commit() throws ParseException {
+    NormToken norm;
+    String debtor;
+    String creditor;
+    CompoundPropertyToken antecedent;
+    CompoundPropertyToken consequent;
+    CompoundPropertyToken compoundProperty;
+    Token localToken;
+    jj_consume_token(COMMIT);
+    jj_consume_token(LPARAN);
+    localToken = jj_consume_token(LABEL);
+                          debtor = localToken.image;
+    jj_consume_token(COMMA);
+    localToken = jj_consume_token(LABEL);
+                          creditor = localToken.image;
+    jj_consume_token(COMMA);
+    compoundProperty = compoundProperty();
+                                           antecedent = compoundProperty;
+    jj_consume_token(COMMA);
+    compoundProperty = compoundProperty();
+                                           consequent = compoundProperty;
+    jj_consume_token(RPARAN);
+     {if (true) return new NormToken(NormToken.COMMITMENT, debtor, creditor, antecedent, consequent);}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public NormToken prohibit() throws ParseException {
+    NormToken norm;
+    String debtor;
+    String creditor;
+    CompoundPropertyToken antecedent;
+    CompoundPropertyToken consequent;
+    CompoundPropertyToken compoundProperty;
+    Token localToken;
+    jj_consume_token(PROHIBIT);
+    jj_consume_token(LPARAN);
+    localToken = jj_consume_token(LABEL);
+                          debtor = localToken.image;
+    jj_consume_token(COMMA);
+    localToken = jj_consume_token(LABEL);
+                          creditor = localToken.image;
+    jj_consume_token(COMMA);
+    compoundProperty = compoundProperty();
+                                           antecedent = compoundProperty;
+    jj_consume_token(COMMA);
+    compoundProperty = compoundProperty();
+                                           consequent = compoundProperty;
+    jj_consume_token(RPARAN);
+     {if (true) return new NormToken(NormToken.PROHIBITION, debtor, creditor, antecedent, consequent);}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public NormToken authorize() throws ParseException {
+    NormToken norm;
+    String debtor;
+    String creditor;
+    CompoundPropertyToken antecedent;
+    CompoundPropertyToken consequent;
+    CompoundPropertyToken compoundProperty;
+    Token localToken;
+    jj_consume_token(AUTHORIZE);
+    jj_consume_token(LPARAN);
+    localToken = jj_consume_token(LABEL);
+                          debtor = localToken.image;
+    jj_consume_token(COMMA);
+    localToken = jj_consume_token(LABEL);
+                          creditor = localToken.image;
+    jj_consume_token(COMMA);
+    compoundProperty = compoundProperty();
+                                           antecedent = compoundProperty;
+    jj_consume_token(COMMA);
+    compoundProperty = compoundProperty();
+                                           consequent = compoundProperty;
+    jj_consume_token(RPARAN);
+     {if (true) return new NormToken(NormToken.AUTHORIZATION, debtor, creditor, antecedent, consequent);}
     throw new Error("Missing return statement in function");
   }
 
@@ -79,7 +181,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
         ;
         break;
       default:
-        jj_la1[1] = jj_gen;
+        jj_la1[2] = jj_gen;
         break label_2;
       }
       jj_consume_token(LOR);
@@ -113,7 +215,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
         ;
         break;
       default:
-        jj_la1[2] = jj_gen;
+        jj_la1[3] = jj_gen;
         break label_3;
       }
       jj_consume_token(LAND);
@@ -148,7 +250,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
       expressionToken = property();
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[4] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -167,21 +269,21 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
       jj_consume_token(APROP);
                  type = PropertyToken.ACHIEVEMENT;
       jj_consume_token(LPARAN);
-      localToken = jj_consume_token(EVENT_LABEL);
-                                    eventLabels.add(localToken.image);
+      localToken = jj_consume_token(LABEL);
+                              eventLabels.add(localToken.image);
       break;
     case MPROP:
       jj_consume_token(MPROP);
                  type = PropertyToken.MAINTENANCE;
       jj_consume_token(LPARAN);
-      localToken = jj_consume_token(EVENT_LABEL);
-                                    eventLabels.add(localToken.image);
+      localToken = jj_consume_token(LABEL);
+                              eventLabels.add(localToken.image);
       jj_consume_token(COMMA);
-      localToken = jj_consume_token(EVENT_LABEL);
-                                    eventLabels.add(localToken.image);
+      localToken = jj_consume_token(LABEL);
+                              eventLabels.add(localToken.image);
       break;
     default:
-      jj_la1[4] = jj_gen;
+      jj_la1[5] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -207,13 +309,13 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[5];
+  static final private int[] jj_la1 = new int[6];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x260,0x80,0x100,0x260,0x60,};
+      jj_la1_0 = new int[] {0x1c0,0x1c0,0x800,0x1000,0x2600,0x600,};
    }
 
   /** Constructor with InputStream. */
@@ -234,7 +336,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -248,7 +350,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -265,7 +367,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -275,7 +377,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -291,7 +393,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -300,7 +402,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -351,12 +453,12 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[17];
+    boolean[] la1tokens = new boolean[23];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -365,7 +467,7 @@ public class SocialProtocolParser implements SocialProtocolParserConstants {
         }
       }
     }
-    for (int i = 0; i < 17; i++) {
+    for (int i = 0; i < 23; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

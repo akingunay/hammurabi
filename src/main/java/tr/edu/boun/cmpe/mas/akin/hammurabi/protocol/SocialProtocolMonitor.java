@@ -4,15 +4,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.Norm;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormObserver;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormState;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.CompoundProperty;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.property.CompoundPropertyObserver;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.PropertyState;
 
 /**
  *
  * @author Akin Gunay
  */
-public class SocialProtocolMonitor implements CompoundPropertyObserver {
+public class SocialProtocolMonitor implements NormObserver {
 
     private final EventTrace eventTrace;
     private final SocialProtocol socialProtocol;
@@ -35,19 +37,16 @@ public class SocialProtocolMonitor implements CompoundPropertyObserver {
             throws tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException, tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException {
         eventTrace = EventTrace.newEventTrace(eventTraceInputStream, lastMoment);
         socialProtocol = new SocialProtocol(socialProtocolInputStream, eventTrace);
-        // TODO replace this with norms when they are implemented
-        for (CompoundProperty compoundProperty : socialProtocol.getProperties()) {
-            compoundProperty.registerCompoundPropertyObserver(this);
-        }
     }
     
     public void execute() {
+        socialProtocol.registerObserverToAllNorms(this);
         eventTrace.execute();
     }
 
     @Override
-    public void update(CompoundProperty property, PropertyState propertyState) {
-        System.out.println("State of " + property + " has changed to " + propertyState + ".");
+    public void update(Norm norm, NormState normState) {
+        System.out.println("State of " + norm + " has changed to " + normState + ".");
     }
 
     @Override

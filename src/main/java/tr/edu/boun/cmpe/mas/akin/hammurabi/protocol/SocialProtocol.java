@@ -4,8 +4,9 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.property.CompoundProperty;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.CompoundPropertyToken;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.Norm;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormObserver;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.NormToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.SocialProtocolParser;
 
@@ -15,22 +16,25 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.SocialProtocolParser;
  */
 public class SocialProtocol {
 
-    private final Set<CompoundProperty> compoundProperties;
+    private final Set<Norm> norms;
     private final EventTrace eventTrace;
 
     public SocialProtocol(InputStream socialProtocolPath, EventTrace eventTrace) throws ParseException {
         this.eventTrace = eventTrace;
-        this.compoundProperties = new HashSet<>();
+        this.norms = new HashSet<>();
         // TODO encapsulate in a wrapper class for SocialProtocolParser and
         //      reduce access of all classes in parser package 
-        Set<CompoundPropertyToken> compoundPropertyTokens = SocialProtocolParser.parse(socialProtocolPath);
-        for (CompoundPropertyToken compoundPropertyToken : compoundPropertyTokens) {
-            this.compoundProperties.add(compoundPropertyToken.getCompoundPropertyInstance(eventTrace));
+        Set<NormToken> normTokens = SocialProtocolParser.parse(socialProtocolPath);
+        for (NormToken normToken : normTokens) {
+            norms.add(normToken.getNormInstance(eventTrace));
         }
     }
 
-    public Set<CompoundProperty> getProperties() {
-        return compoundProperties;
+    public void registerObserverToAllNorms(NormObserver normObserver) {
+        // TODO validate input
+        for (Norm norm : norms) {
+            norm.registerNormObserver(normObserver);
+        }
     }
     
     

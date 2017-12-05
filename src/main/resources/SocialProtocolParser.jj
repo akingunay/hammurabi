@@ -11,6 +11,7 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.BinaryExpressionToken
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.CompoundPropertyToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.parser.PropertyExpressionToken;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.NormToken;
 
 public class SocialProtocolParser {
 
@@ -20,7 +21,7 @@ public class SocialProtocolParser {
         initialized = false;
     }
 
-    public static Set<CompoundPropertyToken> parse(InputStream inputStream) throws ParseException {
+    public static Set<NormToken> parse(InputStream inputStream) throws ParseException {
         if (!initialized) {
             new SocialProtocolParser(inputStream);
             initialized = true;
@@ -36,33 +37,110 @@ PARSER_END(SocialProtocolParser)
 SKIP : {" " | "\t" | "\n" | "\r"}
 
 TOKEN : {
-    < APROP:    "Achieve" > |
-    < MPROP:    "Maintain" > |
-    < LOR:      "|" > |
-    < LAND:     "&" > |
-    < LPARAN:   "(" > |
-    < RPARAN:   ")" > |
-    < LSQBRA:   "[" > |
-    < RSQBRA:   "]" > |
-    < SEMICOL:  ";" > |
-    < COMMA:    "," >
+    < PROTOCOL  : "Protocol" > |
+    < COMMIT    : "Commit" > |    
+    < PROHIBIT  : "Prohibit" > |
+    < AUTHORIZE : "Authorize" > |
+    < APROP     : "Achieve" > |
+    < MPROP     : "Maintain" > |
+    < LOR       : "|" > |
+    < LAND      : "&" > |
+    < LPARAN    : "(" > |
+    < RPARAN    : ")" > |
+    < LBRACE    : "{" > |
+    < RBRACE    : "}" > |
+    < LSQBRA    : "[" > |
+    < RSQBRA    : "]" > |
+    < SEMICOL   : ";" > |
+    < COMMA     : "," >
 }
 
 TOKEN : {
-    < EVENT_LABEL : ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
+    < LABEL : ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
 }
 
 TOKEN : {
     < NUMBER : ["1" - "9"] (["0" - "9"])* >
 }
 
-Set<CompoundPropertyToken> protocol() : {
-    Set<CompoundPropertyToken> compoundPropertyTokens = new HashSet();
-    CompoundPropertyToken compoundPropertyToken;
+Set<NormToken> protocol() : {
+    Set<NormToken> normTokens = new HashSet();
+    NormToken normToken;
 } {
-    ( compoundPropertyToken = compoundProperty() <SEMICOL> {compoundPropertyTokens.add(compoundPropertyToken);} )+
+    <PROTOCOL> <LBRACE>
+    ( normToken = norm() {normTokens.add(normToken);} )+
+    <RBRACE>
     <EOF>
-    {return compoundPropertyTokens;}
+    {return normTokens;}
+}
+
+NormToken norm() : {
+    NormToken norm;
+} {
+    ( norm = commit() | norm = prohibit() | norm = authorize() ) {return norm;}
+}
+
+NormToken commit() : {
+    NormToken norm;
+    String debtor;
+    String creditor;
+    CompoundPropertyToken antecedent;
+    CompoundPropertyToken consequent;
+    CompoundPropertyToken compoundProperty;
+    Token localToken;
+} {
+    <COMMIT> <LPARAN>
+    localToken = <LABEL> {debtor = localToken.image;}
+    <COMMA>
+    localToken = <LABEL> {creditor = localToken.image;}
+    <COMMA>
+    compoundProperty = compoundProperty() {antecedent = compoundProperty;}
+    <COMMA>
+    compoundProperty = compoundProperty() {consequent = compoundProperty;}
+    <RPARAN>
+    {return new NormToken(NormToken.COMMITMENT, debtor, creditor, antecedent, consequent);}
+}
+
+NormToken prohibit() : {
+    NormToken norm;
+    String debtor;
+    String creditor;
+    CompoundPropertyToken antecedent;
+    CompoundPropertyToken consequent;
+    CompoundPropertyToken compoundProperty;
+    Token localToken;
+} {
+    <PROHIBIT> <LPARAN>
+    localToken = <LABEL> {debtor = localToken.image;}
+    <COMMA>
+    localToken = <LABEL> {creditor = localToken.image;}
+    <COMMA>
+    compoundProperty = compoundProperty() {antecedent = compoundProperty;}
+    <COMMA>
+    compoundProperty = compoundProperty() {consequent = compoundProperty;}
+    <RPARAN>
+    {return new NormToken(NormToken.PROHIBITION, debtor, creditor, antecedent, consequent);}
+}
+
+NormToken authorize() : {
+    NormToken norm;
+    String debtor;
+    String creditor;
+    CompoundPropertyToken antecedent;
+    CompoundPropertyToken consequent;
+    CompoundPropertyToken compoundProperty;
+    Token localToken;
+} {
+    <AUTHORIZE> <LPARAN>
+    localToken = <LABEL> {debtor = localToken.image;}
+    <COMMA>
+    localToken = <LABEL> {creditor = localToken.image;}
+    <COMMA>
+    compoundProperty = compoundProperty() {antecedent = compoundProperty;}
+    <COMMA>
+    compoundProperty = compoundProperty() {consequent = compoundProperty;}
+    <RPARAN>
+    {return new NormToken(NormToken.AUTHORIZATION, debtor, creditor, antecedent, consequent);}
 }
 
 CompoundPropertyToken compoundProperty() : {
@@ -139,13 +217,13 @@ PropertyExpressionToken property() : {
     ((
         <APROP> {type = PropertyToken.ACHIEVEMENT;} 
         <LPARAN>
-        localToken = <EVENT_LABEL> {eventLabels.add(localToken.image);}
+        localToken = <LABEL> {eventLabels.add(localToken.image);}
     ) | (
         <MPROP> {type = PropertyToken.MAINTENANCE;}
         <LPARAN>
-        localToken = <EVENT_LABEL> {eventLabels.add(localToken.image);}
+        localToken = <LABEL> {eventLabels.add(localToken.image);}
         <COMMA>
-        localToken = <EVENT_LABEL> {eventLabels.add(localToken.image);}
+        localToken = <LABEL> {eventLabels.add(localToken.image);}
     ))
     <RPARAN>
     <LSQBRA>

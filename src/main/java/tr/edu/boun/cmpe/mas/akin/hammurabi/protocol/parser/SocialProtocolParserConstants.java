@@ -11,29 +11,41 @@ public interface SocialProtocolParserConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int APROP = 5;
+  int PROTOCOL = 5;
   /** RegularExpression Id. */
-  int MPROP = 6;
+  int COMMIT = 6;
   /** RegularExpression Id. */
-  int LOR = 7;
+  int PROHIBIT = 7;
   /** RegularExpression Id. */
-  int LAND = 8;
+  int AUTHORIZE = 8;
   /** RegularExpression Id. */
-  int LPARAN = 9;
+  int APROP = 9;
   /** RegularExpression Id. */
-  int RPARAN = 10;
+  int MPROP = 10;
   /** RegularExpression Id. */
-  int LSQBRA = 11;
+  int LOR = 11;
   /** RegularExpression Id. */
-  int RSQBRA = 12;
+  int LAND = 12;
   /** RegularExpression Id. */
-  int SEMICOL = 13;
+  int LPARAN = 13;
   /** RegularExpression Id. */
-  int COMMA = 14;
+  int RPARAN = 14;
   /** RegularExpression Id. */
-  int EVENT_LABEL = 15;
+  int LBRACE = 15;
   /** RegularExpression Id. */
-  int NUMBER = 16;
+  int RBRACE = 16;
+  /** RegularExpression Id. */
+  int LSQBRA = 17;
+  /** RegularExpression Id. */
+  int RSQBRA = 18;
+  /** RegularExpression Id. */
+  int SEMICOL = 19;
+  /** RegularExpression Id. */
+  int COMMA = 20;
+  /** RegularExpression Id. */
+  int LABEL = 21;
+  /** RegularExpression Id. */
+  int NUMBER = 22;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -45,17 +57,23 @@ public interface SocialProtocolParserConstants {
     "\"\\t\"",
     "\"\\n\"",
     "\"\\r\"",
+    "\"Protocol\"",
+    "\"Commit\"",
+    "\"Prohibit\"",
+    "\"Authorize\"",
     "\"Achieve\"",
     "\"Maintain\"",
     "\"|\"",
     "\"&\"",
     "\"(\"",
     "\")\"",
+    "\"{\"",
+    "\"}\"",
     "\"[\"",
     "\"]\"",
     "\";\"",
     "\",\"",
-    "<EVENT_LABEL>",
+    "<LABEL>",
     "<NUMBER>",
   };
 

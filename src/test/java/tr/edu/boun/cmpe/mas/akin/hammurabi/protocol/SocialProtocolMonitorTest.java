@@ -17,8 +17,8 @@ public class SocialProtocolMonitorTest {
     public void testSocialProtocolMonitor() throws FileNotFoundException, 
             tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException,
             tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException{
-        InputStream socialProtocolInputStream = getClass().getResourceAsStream("/protocol/testPropertySatisfaction.sop");
-        InputStream eventTraceInputStream = getClass().getResourceAsStream("/event/testPropertySatisfaction.etr");
+        InputStream socialProtocolInputStream = getClass().getResourceAsStream("/protocol/testCommitmentSatisfaction.sop");
+        InputStream eventTraceInputStream = getClass().getResourceAsStream("/event/testCommitmentSatisfaction.etr");
         SocialProtocolMonitor monitor = new SocialProtocolMonitor(socialProtocolInputStream, eventTraceInputStream, 60);
         monitor.execute();
     }
