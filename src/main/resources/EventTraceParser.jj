@@ -1,4 +1,4 @@
-PARSER_BEGIN(EventTraceParser)
+PARSER_BEGIN(Parser)
 
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser;
 
@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventTraceParser {
+public class Parser {
 
     private static boolean initialized;
 
@@ -16,7 +16,7 @@ public class EventTraceParser {
 
     public static List<RawEventLog> parse(InputStream inputStream) throws ParseException {
         if (!initialized) {
-            new EventTraceParser(inputStream);
+            new Parser(inputStream);
             initialized = true;
         } else {
             ReInit(inputStream);
@@ -25,7 +25,7 @@ public class EventTraceParser {
     }
 }
 
-PARSER_END(EventTraceParser)
+PARSER_END(Parser)
 
 SKIP : {" " | "\t" | "\n" | "\r"}
 
