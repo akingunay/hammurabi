@@ -5,12 +5,12 @@
  */
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser;
 
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.etr.ETREventTraceParser;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.DefaultEventTraceValidator;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.Event;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 
@@ -35,7 +35,7 @@ public class EventTraceParserTest {
 
     @Test
     public void testValidInput() throws EventTraceParseException, InvalidEventTraceException {
-        EventTraceParser parser = new EventTraceParser(getClass().getResourceAsStream("/event/testValidInput.etr"));
+        ETREventTraceParser parser = new ETREventTraceParser(getClass().getResourceAsStream("/event/testValidInput.etr"));
         parser.parse(new DefaultEventTraceValidator(RESERVED_EVENTS, ALLOWED_FIRST_MOMENT, ALLOWED_LAST_MOMENT));
         long eventNumber = 1;
         for (EventLog eventLog : parser.getEventLogs()) {
@@ -53,13 +53,13 @@ public class EventTraceParserTest {
     
     @Test(expected=EventTraceParseException.class)
     public void testEmptyInput()  throws EventTraceParseException, InvalidEventTraceException  {
-        EventTraceParser parser = new EventTraceParser(getClass().getResourceAsStream("/event/testEmptyInput.etr"));
+        ETREventTraceParser parser = new ETREventTraceParser(getClass().getResourceAsStream("/event/testEmptyInput.etr"));
         parser.parse(new DefaultEventTraceValidator(RESERVED_EVENTS, ALLOWED_FIRST_MOMENT, ALLOWED_LAST_MOMENT));
     }
     
     @Test(expected=EventTraceParseException.class)
     public void testInvalidInput()  throws EventTraceParseException, InvalidEventTraceException  {
-        EventTraceParser parser = new EventTraceParser(getClass().getResourceAsStream("/event/testInvalidInput.etr"));
+        ETREventTraceParser parser = new ETREventTraceParser(getClass().getResourceAsStream("/event/testInvalidInput.etr"));
         parser.parse(new DefaultEventTraceValidator(RESERVED_EVENTS, ALLOWED_FIRST_MOMENT, ALLOWED_LAST_MOMENT));
     }
 }

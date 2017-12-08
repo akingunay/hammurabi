@@ -1,8 +1,10 @@
-package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
+package tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.Event;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceValidator;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.InvalidEventTraceException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.util.ArgumentValidator;

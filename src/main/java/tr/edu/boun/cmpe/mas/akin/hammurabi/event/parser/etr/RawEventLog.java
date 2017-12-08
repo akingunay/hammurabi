@@ -1,4 +1,4 @@
-package tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser;
+package tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.etr;
 
 /**
  *

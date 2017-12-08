@@ -27,7 +27,7 @@ public abstract class Norm implements NormExpression, CompoundPropertyObserver, 
     }
 
     @Override   // NormExpression
-    public NormState evaluate() {
+    public final NormState evaluate() {
         return normState;
     }
     

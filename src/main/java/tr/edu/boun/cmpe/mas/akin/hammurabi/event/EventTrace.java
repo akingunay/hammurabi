@@ -1,11 +1,11 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.DefaultEventTraceValidator;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParseException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParser;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.InvalidEventTraceException;
@@ -34,12 +34,11 @@ public class EventTrace implements EventSubject {
         RESERVED_EVENTS.add(Event.TICK);
     }
     
-    public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) throws EventTraceParseException, InvalidEventTraceException {
-        ArgumentValidator.validateObjectIsNotNull(eventTraceStream, "argument \"eventTraceStream\" cannot be null");
+    public static EventTrace newEventTrace(EventTraceParser eventTraceParser, long lastMoment) throws EventTraceParseException, InvalidEventTraceException {
+        ArgumentValidator.validateObjectIsNotNull(eventTraceParser, "argument \"eventTraceParser\" cannot be null");
         if (lastMoment < ALLOWED_FIRST_MOMENT) {
             throw new IllegalArgumentException("last moment (" + lastMoment + ") must be equal to or after the first allowed moment (" + ALLOWED_FIRST_MOMENT + ")");
         }
-        EventTraceParser eventTraceParser = new EventTraceParser(eventTraceStream);
         eventTraceParser.parse(new DefaultEventTraceValidator(RESERVED_EVENTS, ALLOWED_FIRST_MOMENT, lastMoment));
         List<EventLog> eventLogs = eventTraceParser.getEventLogs();
         Map<String, Event> eventIndex = extractEventIndexFromLogs(eventTraceParser.getEvents());

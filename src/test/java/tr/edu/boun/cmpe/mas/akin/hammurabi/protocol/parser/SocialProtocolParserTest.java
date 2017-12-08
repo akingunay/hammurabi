@@ -17,7 +17,7 @@ public class SocialProtocolParserTest {
 
     
     @Test
-    public void testValidInput() throws ParseException, tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException {
+    public void testValidInput() throws ParseException, tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.etr.ParseException {
 //        EventTrace eventTrace = EventTrace.newEventTrace(getClass().getResourceAsStream("/event/testValidInput.etr"), 100);
 //        Set<CompoundPropertyToken> cpts = SocialProtocolParser.parse(getClass().getResourceAsStream("/protocol/testValidInput.sop"));
 //        for (CompoundPropertyToken cpt : cpts) {
