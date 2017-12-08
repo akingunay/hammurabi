@@ -15,11 +15,11 @@ class EventObserversIndex {
 
     private final Map<Event, Set<EventObserver>> eventObserversMap;
     
-    public EventObserversIndex() {
+    EventObserversIndex() {
         eventObserversMap = new HashMap<>();
     }
     
-    public void addEventObserverToEvent(EventObserver eventObserver, Event event) {
+    void addEventObserverToEvent(EventObserver eventObserver, Event event) {
         if (eventObserversMap.containsKey(event)) {
             eventObserversMap.get(event).add(eventObserver);
         } else {
@@ -29,7 +29,7 @@ class EventObserversIndex {
         }
     }
     
-    public void removeEventObserverFromEvent(EventObserver eventObserver, Event event) {
+    void removeEventObserverFromEvent(EventObserver eventObserver, Event event) {
         if (eventObserversMap.containsKey(event)) {
             eventObserversMap.get(event).remove(eventObserver);
             if (eventObserversMap.get(event).isEmpty()) {
@@ -39,27 +39,13 @@ class EventObserversIndex {
         }
     }
     
-    public void notifyObserversOfEventLog(EventLog eventLog) {
+    void notifyObserversOfEventLog(EventLog eventLog) {
         if (eventObserversMap.containsKey(eventLog.getEvent())) {
-            //System.out.println("Notifying observers for " + eventLog + ".");
             Set<EventObserver> copyEventObservers = new HashSet<>(eventObserversMap.get(eventLog.getEvent()));
             for (EventObserver eventObserver : copyEventObservers) {
-                //System.out.println("\t" + eventObserver);
                 eventObserver.update(eventLog);
             }
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        for (Event event : eventObserversMap.keySet()) {
-            str.append(event).append(":\n");
-            for (EventObserver observer : eventObserversMap.get(event)) {
-                str.append("\t").append(observer).append("\n");
-            }
-        }
-        return str.toString();
-    }
-    
 }

@@ -1,13 +1,15 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParseException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParser;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.RawEventLog;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.InvalidEventTraceException;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.ArgumentValidator;
 
 /**
  * This class represents a trace of events happenings. It can execute the trace 
@@ -23,45 +25,32 @@ public class EventTrace implements EventSubject {
     private final long lastMoment;
     private final EventObserversIndex eventObserversIndex;
     
-    private static final long FIRST_ALLOWED_EVENT_MOMENT = 1;
+    private static final long ALLOWED_FIRST_MOMENT;
+    private static final Set<Event> RESERVED_EVENTS;
     
-    public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) throws ParseException {
-        if (lastMoment < FIRST_ALLOWED_EVENT_MOMENT) {
-            throw new IllegalArgumentException("Last moment cannot be before the first allowed event moment.");
+    static {
+        ALLOWED_FIRST_MOMENT = 1;
+        RESERVED_EVENTS = new HashSet<>();
+        RESERVED_EVENTS.add(Event.TICK);
+    }
+    
+    public static EventTrace newEventTrace(InputStream eventTraceStream, long lastMoment) throws EventTraceParseException, InvalidEventTraceException {
+        ArgumentValidator.validateObjectIsNotNull(eventTraceStream, "argument \"eventTraceStream\" cannot be null");
+        if (lastMoment < ALLOWED_FIRST_MOMENT) {
+            throw new IllegalArgumentException("last moment (" + lastMoment + ") must be equal to or after the first allowed moment (" + ALLOWED_FIRST_MOMENT + ")");
         }
-        List<EventLog> eventLogs = parseEventLogs(eventTraceStream);
-        Map<String, Event> eventIndex = extractEventIndexFromLogs(eventLogs);
+        EventTraceParser eventTraceParser = new EventTraceParser(eventTraceStream);
+        eventTraceParser.parse(new DefaultEventTraceValidator(RESERVED_EVENTS, ALLOWED_FIRST_MOMENT, lastMoment));
+        List<EventLog> eventLogs = eventTraceParser.getEventLogs();
+        Map<String, Event> eventIndex = extractEventIndexFromLogs(eventTraceParser.getEvents());
         eventIndex.put(Event.TICK.getEventLabel(), Event.TICK);
-        if (lastMoment < eventLogs.get(eventLogs.size() - 1).getMoment()) {
-            throw new IllegalArgumentException("Last moment cannot be before the moment of the last event in the trace.");
-        }
         return new EventTrace(eventLogs, eventIndex, lastMoment);
     }
 
-    // TODO encapsulate creation of EventLog from RawEventLog in a wrapper class for EventTraceParser and
-    //      reduce access of all classes in parser package 
-    private static List<EventLog> parseEventLogs(InputStream eventTraceStream) throws ParseException {
-        List<RawEventLog> rawEventLogs = EventTraceParser.parse(eventTraceStream);
-        List<EventLog> eventLogs = new ArrayList<>(rawEventLogs.size());
-        long currentMoment = FIRST_ALLOWED_EVENT_MOMENT;
-        for (RawEventLog rawEventLog : rawEventLogs) {
-            if (rawEventLog.moment < currentMoment) {
-                throw new ParseException("Events must happen in order.");
-            }
-            eventLogs.add(EventLog.newEventLog(Event.newEvent(rawEventLog.eventLabel), rawEventLog.moment));
-            currentMoment = rawEventLog.moment;
-        }
-        return eventLogs;
-    }
-    
-    // TODO move checking cardinality contraints of event happenings into wrapper parser
-    private static Map<String, Event> extractEventIndexFromLogs(List<EventLog> eventLogs) throws ParseException  {
+    private static Map<String, Event> extractEventIndexFromLogs(Set<Event> events) {
         Map<String, Event> eventIndex = new HashMap<>();
-        for (EventLog eventLog : eventLogs) {
-            if (eventIndex.containsKey(eventLog.getEvent().getEventLabel())) {
-                throw new ParseException("An event can happen only once.");
-            }
-            eventIndex.put(eventLog.getEvent().getEventLabel(), eventLog.getEvent());
+        for (Event event : events) {
+            eventIndex.put(event.getEventLabel(), event);
         }
         return eventIndex;
     }
@@ -76,12 +65,6 @@ public class EventTrace implements EventSubject {
     public void execute() {
         long currentMoment = 0;
         int nextEventLogIndex = 0;
-        
-//        System.out.println(eventObserversIndex);
-//        for(EventLog eventLog : eventLogs) {
-//            System.out.println(eventLog);
-//        } 
-        
         while (currentMoment <= lastMoment) {
             notifyEventObservers(EventLog.newEventLog(Event.TICK, currentMoment));
             nextEventLogIndex = executeEventsAtCurrentMoment(currentMoment, nextEventLogIndex);
@@ -90,7 +73,6 @@ public class EventTrace implements EventSubject {
     }
     
     private int executeEventsAtCurrentMoment(long currentMoment, int nextEventLogIndex) {
-        //System.out.println("Current Moment: " + currentMoment + " NextEventLogIndex: " + nextEventLogIndex);
         while (nextEventLogIndex < eventLogs.size() && eventLogs.get(nextEventLogIndex).getMoment() == currentMoment) {
             notifyEventObservers(eventLogs.get(nextEventLogIndex));
             nextEventLogIndex++;
@@ -99,7 +81,12 @@ public class EventTrace implements EventSubject {
     }
     
     public Event getEventInstance(String eventLabel) {
-        return eventIndex.get(eventLabel);
+        ArgumentValidator.validateObjectIsNotNull(eventLabel, "argument \"eventLabel\" cannot be null or empty");
+        if (eventIndex.containsKey(eventLabel)) {
+            return eventIndex.get(eventLabel);
+        } else {
+            throw new IllegalArgumentException("Event label (" + eventLabel + ") is unknown.");
+        }
     }
     
     @Override

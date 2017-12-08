@@ -1,5 +1,7 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
 
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.ArgumentValidator;
+
 /**
  * This class represents happening of an event in an event trace.
  * 
@@ -13,7 +15,7 @@ public class EventLog {
     private final long moment;
 
     public static EventLog newEventLog(Event event, long moment) {
-        // TODO validation
+        ArgumentValidator.validateObjectIsNotNull(event, "argument \"event\" cannot be null");
         return new EventLog(event, moment);
     }
     
@@ -34,6 +36,5 @@ public class EventLog {
     public String toString() {
         return event + " @ " + moment;
     }
-    
     
 }

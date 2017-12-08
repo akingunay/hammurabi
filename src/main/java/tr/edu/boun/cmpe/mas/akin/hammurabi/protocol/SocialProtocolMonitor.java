@@ -4,11 +4,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParseException;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.InvalidEventTraceException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.Norm;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormObserver;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormState;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.property.CompoundProperty;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.property.PropertyState;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException;
 
 /**
  *
@@ -20,21 +21,19 @@ public class SocialProtocolMonitor implements NormObserver {
     private final SocialProtocol socialProtocol;
 
     public static SocialProtocolMonitor newSocialProtocolMonitor(String pathOfSocialProtocol, String pathOfEventTrace, long lastMoment)
-            throws FileNotFoundException,
-            tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException,
-            tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException {
+            throws FileNotFoundException, EventTraceParseException, InvalidEventTraceException, ParseException {
         FileInputStream socialProtocolInputStream = new FileInputStream(pathOfSocialProtocol);
         FileInputStream eventTraceInputStream = new FileInputStream(pathOfEventTrace);
         return new SocialProtocolMonitor(socialProtocolInputStream, eventTraceInputStream, lastMoment);
     }
     
     public SocialProtocolMonitor newSocialProtocolMonitor(InputStream socialProtocolInputStream, InputStream eventTraceInputStream, long lastMoment)
-            throws tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException, tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException {
+            throws EventTraceParseException, InvalidEventTraceException, ParseException {
         return new SocialProtocolMonitor(socialProtocolInputStream, eventTraceInputStream, lastMoment);
     }
     
     public SocialProtocolMonitor(InputStream socialProtocolInputStream, InputStream eventTraceInputStream, long lastMoment) 
-            throws tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.ParseException, tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException {
+            throws EventTraceParseException, InvalidEventTraceException, ParseException {
         eventTrace = EventTrace.newEventTrace(eventTraceInputStream, lastMoment);
         socialProtocol = new SocialProtocol(socialProtocolInputStream, eventTrace);
     }

@@ -1,6 +1,7 @@
 package tr.edu.boun.cmpe.mas.akin.hammurabi.event;
 
 import java.util.Objects;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.ArgumentValidator;
 
 /**
  * This class represents a basic event that may happen in a system.  
@@ -17,8 +18,9 @@ public class Event {
     
     private final String label;
     
-    static Event newEvent(String label) {
-        // TODO validation
+    // TODO can we do this package access
+    public static Event newEvent(String label) {
+        ArgumentValidator.validateStringIsLegal(label, "argument \"label\" cannot be null or empty");
         return new Event(label);
     }
     
@@ -26,7 +28,7 @@ public class Event {
         this.label = label;
     }
 
-    String getEventLabel() {
+    public String getEventLabel() {
         return label;
     }
     
