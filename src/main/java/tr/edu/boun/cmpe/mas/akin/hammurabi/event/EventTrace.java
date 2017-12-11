@@ -65,7 +65,7 @@ public class EventTrace implements EventSubject {
         long currentMoment = 0;
         int nextEventLogIndex = 0;
         while (currentMoment <= lastMoment) {
-            notifyEventObservers(EventLog.newEventLog(Event.TICK, currentMoment));
+            notifyEventObservers(new EventLog(Event.TICK, currentMoment));
             nextEventLogIndex = executeEventsAtCurrentMoment(currentMoment, nextEventLogIndex);
             currentMoment++;
         }

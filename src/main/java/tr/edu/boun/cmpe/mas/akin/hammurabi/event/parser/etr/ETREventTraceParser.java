@@ -43,8 +43,8 @@ public class ETREventTraceParser implements EventTraceParser {
         List<EventLog> tmpEventLogs = new ArrayList<>();
         List<Event> tmpEvents = new ArrayList<>();
         for (RawEventLog rawEventLog : rawEventLogs) {
-            Event event = Event.newEvent(rawEventLog.eventLabel);
-            tmpEventLogs.add(EventLog.newEventLog(event, rawEventLog.moment));
+            Event event = new Event(rawEventLog.eventLabel);
+            tmpEventLogs.add(new EventLog(event, rawEventLog.moment));
             tmpEvents.add(event);
         }
         validator.validate(tmpEventLogs, tmpEvents);
