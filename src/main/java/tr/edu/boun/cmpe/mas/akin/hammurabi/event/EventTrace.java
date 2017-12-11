@@ -107,7 +107,7 @@ public class EventTrace implements EventSubject {
 
     @Override
     public void notifyEventObservers(EventLog eventLog) {
-        eventObserversIndex.notifyObserversOfEventLog(eventLog);
+        eventObserversIndex.notifyEventObservers(eventLog);
     }
 
 }

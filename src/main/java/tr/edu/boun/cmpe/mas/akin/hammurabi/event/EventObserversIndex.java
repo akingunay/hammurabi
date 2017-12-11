@@ -33,13 +33,12 @@ class EventObserversIndex {
         if (eventObserversMap.containsKey(event)) {
             eventObserversMap.get(event).remove(eventObserver);
             if (eventObserversMap.get(event).isEmpty()) {
-                eventObserversMap.put(event, null);
                 eventObserversMap.remove(event);
             }
         }
     }
     
-    void notifyObserversOfEventLog(EventLog eventLog) {
+    void notifyEventObservers(EventLog eventLog) {
         if (eventObserversMap.containsKey(eventLog.getEvent())) {
             Set<EventObserver> copyEventObservers = new HashSet<>(eventObserversMap.get(eventLog.getEvent()));
             for (EventObserver eventObserver : copyEventObservers) {
