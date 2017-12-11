@@ -18,13 +18,8 @@ public class Event {
     
     private final String label;
     
-    // TODO can we do this package access
-    public static Event newEvent(String label) {
+    public Event(String label) {
         ArgumentValidator.validateStringIsLegal(label, "argument \"label\" cannot be null or empty");
-        return new Event(label);
-    }
-    
-    private Event(String label) {
         this.label = label;
     }
 
@@ -34,9 +29,7 @@ public class Event {
     
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.label);
-        return hash;
+        return label.hashCode();
     }
 
     @Override
@@ -51,7 +44,7 @@ public class Event {
             return false;
         }
         final Event other = (Event) obj;
-        return this.label.equals(other.label);
+        return Objects.equals(this.label, other.label);
     }
 
     @Override
