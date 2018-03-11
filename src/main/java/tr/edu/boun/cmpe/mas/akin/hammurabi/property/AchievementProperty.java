@@ -54,7 +54,7 @@ public class AchievementProperty extends Property {
 
     private void setTerminalState(PropertyState propertyState) {
         setState(propertyState);
-        notifyPropertyObservers();  // TODO move into Property
+        notifyObservers();  // TODO move into Property
         eventTrace.removeEventObserver(this, Event.TICK);
         eventTrace.removeEventObserver(this, event);
     }

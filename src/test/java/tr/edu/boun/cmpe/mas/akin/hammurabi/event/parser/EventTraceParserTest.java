@@ -46,7 +46,7 @@ public class EventTraceParserTest {
         assertEquals(NUMBER_OF_EVENTS_IN_VALID_INPUT + 1, eventNumber);
         Set<Event> events = new HashSet<>();
         for (int i = 1 ; i <= NUMBER_OF_EVENTS_IN_VALID_INPUT ; i++) {
-            events.add(Event.newEvent("event" + i));
+            events.add(new Event("event" + i));
         }
         assertEquals(events, parser.getEvents());
     }

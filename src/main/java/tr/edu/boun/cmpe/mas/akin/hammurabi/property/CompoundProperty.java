@@ -2,6 +2,8 @@ package tr.edu.boun.cmpe.mas.akin.hammurabi.property;
 
 import java.util.HashSet;
 import java.util.Set;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Observer;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Subject;
 
 /**
  * A compound property combines a set of base properties into a single
@@ -16,26 +18,26 @@ import java.util.Set;
  * 
  * @author Akin Gunay
  */
-public class CompoundProperty implements PropertyExpression, PropertyObserver, CompoundPropertySubject {
+public class CompoundProperty implements PropertyExpression, Observer<Property, PropertyState>, Subject<Observer<CompoundProperty, PropertyState>> {
 
     private final PropertyExpression expression;
-    private final Set<CompoundPropertyObserver> compoundPropertyObservers;
-    private PropertyState compoundPropertyState;
+    private final Set<Observer<CompoundProperty, PropertyState>> observers;
+    private PropertyState state;
     
     
     public CompoundProperty(PropertyExpression expression) {
         // TODO validate input
         this.expression = expression;
-        this.compoundPropertyObservers = new HashSet<>();
-        this.compoundPropertyState = PropertyState.UNDETERMINED;
+        this.observers = new HashSet<>();
+        this.state = PropertyState.UNDETERMINED;
         for (Property property : expression.getProperties()) {
-            property.registerPropertyObserver(this);
+            property.registerObserver(this);
         }
     }
     
     @Override
     public PropertyState evaluate() {
-        return compoundPropertyState;
+        return state;
     }
 
     // TODO since a compound property is effectively final with respect to the
@@ -44,12 +46,12 @@ public class CompoundProperty implements PropertyExpression, PropertyObserver, C
     @Override
     public void update(Property property, PropertyState propertyState) {
         System.out.print("Notified about " + property + " is " + propertyState);
-        compoundPropertyState = expression.evaluate();
-        System.out.println(" and state of compound is " + compoundPropertyState);
-        if (compoundPropertyState.equals(PropertyState.FAILED) || compoundPropertyState.equals(PropertyState.SATISFIED)) {
-            notifyCompoundPropertyObservers();
+        state = expression.evaluate();
+        System.out.println(" and state of compound is " + state);
+        if (state.equals(PropertyState.FAILED) || state.equals(PropertyState.SATISFIED)) {
+            notifyObservers();
             for (Property observedProperty : expression.getProperties()) {
-                observedProperty.removePropertyObserver(this);
+                observedProperty.removeObserver(this);
             }
         }
     }
@@ -60,26 +62,26 @@ public class CompoundProperty implements PropertyExpression, PropertyObserver, C
     }
 
     @Override
-    public void registerCompoundPropertyObserver(CompoundPropertyObserver compoundPropertyObserver) {
-        compoundPropertyObservers.add(compoundPropertyObserver);
+    public void registerObserver(Observer<CompoundProperty, PropertyState> observer) {
+        observers.add(observer);
     }
 
     @Override
-    public void removeCompoundPropertyObserver(CompoundPropertyObserver compoundPropertyObserver) {
-        compoundPropertyObservers.remove(compoundPropertyObserver);
+    public void removeObserver(Observer<CompoundProperty, PropertyState> observer) {
+        observers.remove(observer);
     }
 
     @Override
-    public void notifyCompoundPropertyObservers() {
-        for (CompoundPropertyObserver compoundPropertyObserver : new HashSet<>(compoundPropertyObservers)) {
+    public void notifyObservers() {
+        for (Observer<CompoundProperty, PropertyState> compoundPropertyObserver : new HashSet<>(observers)) {
             System.out.println("Notifying " + compoundPropertyObserver);
-            compoundPropertyObserver.update(this, compoundPropertyState);
+            compoundPropertyObserver.update(this, state);
         }
     }
     
     @Override
     public String toString() {
-        return "(" + expression + ")<" + compoundPropertyState + ">";
+        return "(" + expression + ")<" + state + ">";
     }
     
 }

@@ -8,15 +8,15 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParseException
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.EventTraceParser;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.InvalidEventTraceException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.Norm;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormObserver;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormState;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Observer;
 
 /**
  *
  * @author Akin Gunay
  */
-public class SocialProtocolMonitor implements NormObserver {
+public class SocialProtocolMonitor implements Observer<Norm, NormState> {
 
     private final EventTrace eventTrace;
     private final SocialProtocol socialProtocol;
@@ -39,7 +39,7 @@ public class SocialProtocolMonitor implements NormObserver {
     }
     
     public void execute() {
-        socialProtocol.registerObserverToAllNorms(this);
+        socialProtocol.registerObserverForAllNorms(this);
         eventTrace.execute();
     }
 

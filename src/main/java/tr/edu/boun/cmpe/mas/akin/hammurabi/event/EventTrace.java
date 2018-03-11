@@ -12,7 +12,7 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.parser.InvalidEventTraceExcepti
 import tr.edu.boun.cmpe.mas.akin.hammurabi.util.ArgumentValidator;
 
 /**
- * This class represents a trace of events happenings. It can execute the trace 
+ * This class represents a trace of event happenings. It can execute the trace 
  * (by generating a TICK event for each moment and) by notifying observers of
  * the trace events about their happenings.
  * 

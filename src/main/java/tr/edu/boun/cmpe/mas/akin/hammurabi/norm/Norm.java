@@ -3,55 +3,61 @@ package tr.edu.boun.cmpe.mas.akin.hammurabi.norm;
 import java.util.HashSet;
 import java.util.Set;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.CompoundProperty;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.property.CompoundPropertyObserver;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.property.PropertyState;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Observer;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Subject;
 
 
 /**
  *
  * @author Akin Gunay
+ * @param <N>
  */
-public abstract class Norm implements NormExpression, CompoundPropertyObserver, NormSubject {
+public abstract class Norm<N extends Norm> implements NormExpression, Observer<CompoundProperty, PropertyState>, Subject<Observer<Norm, NormState>> {
     
-    private final Set<NormObserver> normObservers;
-    private NormState normState;
+    private final Set<Observer<Norm, NormState>> observers;
+    private NormState<N> state;
     
-    protected Norm() {
-        normObservers = new HashSet<>();
-        normState = NormState.CONDITIONAL;
+    protected Norm(NormState<N> initialState) {
+        observers = new HashSet<>();
+        state = initialState;
     }
 
-    protected void setNormState(NormState normState) {
-        this.normState = normState;
-        notifyNormObservers();
+    protected NormState getState() {
+        return state;
+    }
+    
+    protected void setState(NormState state) {
+        this.state = state;
+        notifyObservers();
     }
 
     @Override   // NormExpression
     public final NormState evaluate() {
-        return normState;
+        return state;
     }
     
     @Override   // CompoundPropertyObserver
-    public void update(CompoundProperty compoundProperty, PropertyState compoundPropertyState) {
-        evaluate(compoundProperty, compoundPropertyState);
+    public void update(CompoundProperty property, PropertyState state) {
+        evaluate(property, state);
     }
 
     @Override   // NormSubject
-    public void registerNormObserver(NormObserver normObserver) {
-        normObservers.add(normObserver);
+    public void registerObserver(Observer<Norm, NormState> observer) {
+        observers.add(observer);
     }
 
     @Override // NormSubject
-    public void removeNormObserver(NormObserver normObserver) {
-        normObservers.remove(normObserver);
+    public void removeObserver(Observer<Norm, NormState> observer) {
+        observers.remove(observer);
     }
 
     @Override // NormSubject
-    public void notifyNormObservers() {
-        for (NormObserver normObserver : new HashSet<>(normObservers)) {
-            normObserver.update(this, normState);
+    public void notifyObservers() {
+        for (Observer<Norm, NormState> observer : new HashSet<>(observers)) {
+            observer.update(this, state);
         }
     }
     
-    protected abstract void evaluate(CompoundProperty property, PropertyState propertyState);
+    protected abstract void evaluate(CompoundProperty property, PropertyState state);
 }

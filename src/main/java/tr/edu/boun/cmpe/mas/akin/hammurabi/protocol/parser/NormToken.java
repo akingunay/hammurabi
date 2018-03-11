@@ -38,7 +38,7 @@ public class NormToken {
     public Norm getNormInstance(EventTrace eventTrace) {
         // TODO validate input
         if (type.equals(COMMITMENT)) {
-            return Commitment.newCommitment(debtor, creditor, antecedent.getCompoundPropertyInstance(eventTrace), consequent.getCompoundPropertyInstance(eventTrace));
+            return Commitment.newCommitment(debtor, creditor, antecedent.getCompoundPropertyInstance(eventTrace), consequent.getCompoundPropertyInstance(eventTrace), null);
         }
         if (type.equals(PROHIBITION)) {
             return null;

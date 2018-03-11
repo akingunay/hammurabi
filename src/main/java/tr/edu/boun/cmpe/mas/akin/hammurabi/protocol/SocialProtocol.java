@@ -5,10 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventTrace;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.Norm;
-import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormObserver;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.norm.NormState;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.NormToken;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.ParseException;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.protocol.parser.SocialProtocolParser;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Observer;
 
 /**
  *
@@ -30,10 +31,10 @@ public class SocialProtocol {
         }
     }
 
-    public void registerObserverToAllNorms(NormObserver normObserver) {
+    public void registerObserverForAllNorms(Observer<Norm, NormState> normObserver) {
         // TODO validate input
         for (Norm norm : norms) {
-            norm.registerNormObserver(normObserver);
+            norm.registerObserver(normObserver);
         }
     }
     

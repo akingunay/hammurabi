@@ -7,26 +7,41 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.property.PropertyState;
  *
  * @author Akin Gunay
  */
-public class Commitment extends Norm {
+public class Commitment extends Norm<Commitment> {
 
     private final String debtor;
     private final String creditor;
     private final CompoundProperty antecedent;
     private final CompoundProperty consequent;
 
-    public static Commitment newCommitment(String debtor, String creditor, CompoundProperty antecedent, CompoundProperty consequent) {
-        // TODO validate
-        Commitment commitment = new Commitment(debtor, creditor, antecedent, consequent);
-        commitment.antecedent.registerCompoundPropertyObserver(commitment);
-        commitment.consequent.registerCompoundPropertyObserver(commitment);
+    public static Commitment newCommitment(String debtor, String creditor, CompoundProperty antecedent, CompoundProperty consequent, NormState<Commitment> initialState) {
+        // TODO validate input
+        
+        // TODO the following does: if no state is provided, make conditional!
+        // is this what we intend? should we represent it better?
+        if (initialState == null) {
+            initialState = ConditionalCommitmentState.CONDITIONAL;
+        }
+        Commitment commitment = new Commitment(debtor, creditor, antecedent, consequent, initialState);
+        commitment.antecedent.registerObserver(commitment);
+        commitment.consequent.registerObserver(commitment);
         return commitment;
     }
         
-    private Commitment(String debtor, String creditor, CompoundProperty antecedent, CompoundProperty consequent) {
+    private Commitment(String debtor, String creditor, CompoundProperty antecedent, CompoundProperty consequent, NormState<Commitment> initialState) {
+        super(initialState);
         this.debtor = debtor;
         this.creditor = creditor;
         this.antecedent = antecedent;
         this.consequent = consequent;
+    }
+
+    CompoundProperty getAntecedent() {
+        return antecedent;
+    }
+
+    CompoundProperty getConsequent() {
+        return consequent;
     }
 
     @Override
@@ -36,50 +51,7 @@ public class Commitment extends Norm {
     
     @Override
     protected void evaluate(CompoundProperty compoundProperty, PropertyState compoundPropertyState) {
-        if (evaluate().equals(NormState.CONDITIONAL)) {
-            setNormState(conditional(compoundProperty, compoundPropertyState));
-        } else if (evaluate().equals(NormState.ACTIVE)) {
-            setNormState(active(compoundProperty, compoundPropertyState));
-        } else {
-            // no state change
-        }
+        setState(getState().progress(this, compoundProperty, compoundPropertyState));
     }
 
-    private NormState conditional(CompoundProperty compoundProperty, PropertyState compoundPropertyState) {
-        NormState normState = evaluate();
-        if (compoundProperty.equals(antecedent)) {
-            if (compoundPropertyState.equals(PropertyState.SATISFIED)) {
-                normState = NormState.ACTIVE;
-                // TODO we may stop observing antecedent
-            } else {
-                normState = NormState.EXPIRED;
-                // TODO remove observers
-            }
-        } else if (compoundProperty.equals(consequent)) {
-            if (compoundPropertyState.equals(PropertyState.SATISFIED)) {
-                normState = NormState.FULFILLED;
-                // TODO remove observers
-            }
-        } else {
-            throw new AssertionError();
-        }
-        return normState;
-    }
-    
-    private NormState active(CompoundProperty compoundProperty, PropertyState compoundPropertyState) {
-        NormState normState = evaluate();
-        if (compoundProperty.equals(consequent)) {
-            if (compoundPropertyState.equals(PropertyState.SATISFIED)) {
-                normState = NormState.FULFILLED;
-                // TODO remove observers
-            } else {
-                normState = NormState.VIOLATED;
-                // TODO remove observers
-            }
-        } else {
-            throw new AssertionError();
-        }
-        return normState;
-    }
-    
 }

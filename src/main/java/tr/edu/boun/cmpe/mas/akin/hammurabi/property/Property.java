@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventLog;
 import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserver;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Observer;
+import tr.edu.boun.cmpe.mas.akin.hammurabi.util.Subject;
 
 /**
  * A base class for all property types. It encapsulates both observation of
@@ -13,23 +15,23 @@ import tr.edu.boun.cmpe.mas.akin.hammurabi.event.EventObserver;
  * 
  * @author Akin Gunay
  */
-public abstract class Property implements PropertyExpression, EventObserver, PropertySubject {
+public abstract class Property implements PropertyExpression, EventObserver, Subject<Observer<Property, PropertyState>> {
 
-    private final Set<PropertyObserver> propertyObservers;
-    private PropertyState propertyState;
+    private final Set<Observer<Property, PropertyState>> observers;
+    private PropertyState state;
     
     protected Property() {
-        propertyState = PropertyState.UNDETERMINED;
-        propertyObservers = new HashSet<>();
+        state = PropertyState.UNDETERMINED;
+        observers = new HashSet<>();
     }
 
     protected void setState(PropertyState propertyState) {
-        this.propertyState = propertyState;
+        this.state = propertyState;
     }
     
     @Override
     public PropertyState evaluate() {
-        return propertyState;
+        return state;
     }
     
     @Override
@@ -40,19 +42,19 @@ public abstract class Property implements PropertyExpression, EventObserver, Pro
     }
     
     @Override
-    public void registerPropertyObserver(PropertyObserver propertyObserver) {
-        propertyObservers.add(propertyObserver);
+    public void registerObserver(Observer<Property, PropertyState> observer) {
+        observers.add(observer);
     }
 
     @Override
-    public void removePropertyObserver(PropertyObserver propertyObserver) {
-        propertyObservers.remove(propertyObserver);
+    public void removeObserver(Observer<Property, PropertyState> observer) {
+        observers.remove(observer);
     }
 
     @Override
-    public void notifyPropertyObservers() {
-        for (PropertyObserver propertyObserver : new HashSet<>(propertyObservers)) {
-            propertyObserver.update(this, propertyState);
+    public void notifyObservers() {
+        for (Observer<Property, PropertyState> observer : new HashSet<>(observers)) {
+            observer.update(this, state);
         }
     }
     
